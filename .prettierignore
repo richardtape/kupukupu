@@ -7,3 +7,7 @@ coverage/
 tests/
 .prettierrc.json
 package.json
+eslint.config.js
+jest.config.js
+playwright.config.js
+vite.config.mjs

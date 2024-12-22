@@ -16,10 +16,10 @@
     "test:e2e:ui": "playwright test --ui",
     "lint": "eslint \"**/*.{js,cjs,mjs}\"",
     "lint:fix": "eslint \"**/*.{js,cjs,mjs}\" --fix",
-    "format": "prettier --write \"**/*.{js,cjs,mjs,css,html,json,md}\"",
+    "format:all": "prettier --write \"**/*.{js,cjs,mjs,css,html,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,cjs,mjs,css,html,json,md}\"",
-    "format:show": "bash -c 'diff $1 <(prettier $1)' --",
-    "validate": "npm run lint && npm run format:check && npm run test"
+    "format:diff": "bash -c 'diff \"$1\" <(npx prettier \"$1\")' --",
+    "validate": "npm run lint && npm run format:check && npm run test && npm run test:e2e"
   },
   "keywords": [],
   "author": "",
