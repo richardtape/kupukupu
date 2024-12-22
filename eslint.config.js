@@ -118,5 +118,10 @@ export default [
             }
         }
     },
+    {
+        ignores: [
+            "playwright-report/"
+        ]
+    },
     prettierConfig
 ];
