@@ -1,0 +1,9 @@
+*.md
+project-plan-docs/
+test-results/
+playwright-report/
+package-lock.json
+coverage/
+tests/
+.prettierrc.json
+package.json
