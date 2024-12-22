@@ -23,7 +23,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@axe-core/playwright": "^4.10.1",
     "@babel/core": "^7.26.0",
