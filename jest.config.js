@@ -1,6 +1,9 @@
 export default {
     testEnvironment: 'jsdom',
-    setupFilesAfterEnv: ['<rootDir>/tests/setup/jest.setup.js'],
+    setupFilesAfterEnv: [
+        '<rootDir>/tests/setup/indexeddb.mock.js',
+        '<rootDir>/tests/setup/jest.setup.js'
+    ],
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
     },
@@ -21,5 +24,7 @@ export default {
             lines: 80,
             statements: 80
         }
-    }
+    },
+    // Increase test timeout
+    testTimeout: 10000
 };

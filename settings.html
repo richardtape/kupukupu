@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';" />
+    <title>Settings - Kupukupu RSS Reader</title>
+    <link rel="stylesheet" href="/src/css/main.css" />
+</head>
+
+<body>
+    <nav class="main-nav">
+        <a href="/index.html" class="nav-link">← Back to Home</a>
+    </nav>
+
+    <main id="app">
+        <h1>Settings</h1>
+
+        <section id="settings">
+            <div id="theme-settings">
+                <h2>Theme</h2>
+                <div class="theme-selector">
+                    <label>
+                        <input type="radio" name="theme" value="butterfly"> Butterfly
+                    </label>
+                    <label>
+                        <input type="radio" name="theme" value="fern"> Fern
+                    </label>
+                    <label>
+                        <input type="radio" name="theme" value="word"> Word
+                    </label>
+                </div>
+            </div>
+
+            <div id="feed-settings">
+                <h2>RSS Feeds</h2>
+                <form id="add-feed-form">
+                    <div>
+                        <label for="feed-url">Feed URL:</label>
+                        <input type="url" id="feed-url" required>
+                    </div>
+                    <div>
+                        <label for="feed-title">Feed Title:</label>
+                        <input type="text" id="feed-title" required>
+                    </div>
+                    <button type="submit">Add Feed</button>
+                </form>
+
+                <div id="feed-list">
+                    <!-- Feeds will be inserted here -->
+                </div>
+            </div>
+        </section>
+    </main>
+    <script type="module" src="/src/js/settings.js"></script>
+</body>
+
+</html>

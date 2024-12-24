@@ -63,7 +63,7 @@ export default [
                 applyToEndTag: false
             }],
             'jsdoc/require-example': ['error', {
-                'exemptedBy': ['private'],
+                'exemptedBy': ['private', 'internal'],
                 'exemptNoArguments': true
             }]
         }
@@ -87,7 +87,11 @@ export default [
                 'process': 'readonly',
                 'module': 'readonly',
                 'require': 'readonly',
-                'exports': 'writable'
+                'exports': 'writable',
+                'console': 'readonly',
+                'URL': 'readonly',
+                'crypto': 'readonly',
+                'alert': 'readonly'
             }
         }
     },
@@ -104,6 +108,8 @@ export default [
                 'window': 'writable',
                 'console': 'readonly',
                 'document': 'readonly',
+                'URL': 'readonly',
+                'crypto': 'readonly',
                 'jest': 'readonly'
             }
         }
@@ -114,13 +120,17 @@ export default [
             globals: {
                 'window': 'readonly',
                 'console': 'readonly',
-                'document': 'readonly'
+                'document': 'readonly',
+                'URL': 'readonly',
+                'crypto': 'readonly',
+                'alert': 'readonly'
             }
         }
     },
     {
         ignores: [
-            "playwright-report/"
+            "playwright-report/",
+            "tests/"
         ]
     },
     prettierConfig
