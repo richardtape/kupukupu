@@ -1,0 +1,41 @@
+{
+  "name": "kupukupu",
+  "version": "1.0.0",
+  "description": "KupuKupu Application",
+  "main": "src/electron.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron:dev": "concurrently \"npm run dev\" \"electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:preview": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "electron": "latest",
+    "electron-builder": "^24.13.3",
+    "electron-is-dev": "latest",
+    "vite": "^6.0.7"
+  },
+  "build": {
+    "appId": "com.kupukupu.app",
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "files": [
+      "dist/**/*",
+      "src/electron.js"
+    ],
+    "directories": {
+      "output": "release"
+    }
+  }
+}
