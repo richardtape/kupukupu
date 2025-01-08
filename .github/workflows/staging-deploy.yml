@@ -1,5 +1,6 @@
 name: Deploy to Staging
 
+# Workflow for deploying to staging environment
 on:
     push:
         branches:
