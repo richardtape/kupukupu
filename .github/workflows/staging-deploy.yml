@@ -52,4 +52,4 @@ jobs:
                   username: ${{ secrets.DEPLOY_USER }}
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   script: |
-                      sudo systemctl reload nginx
+                      sudo /usr/bin/systemctl restart nginx
