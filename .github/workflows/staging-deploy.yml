@@ -1,6 +1,7 @@
 name: Deploy to Staging
 
 # Workflow for deploying to staging environment
+# Requires sudo permission for nginx reload
 on:
     push:
         branches:
