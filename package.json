@@ -32,10 +32,17 @@
     },
     "files": [
       "dist/**/*",
-      "src/electron.js"
+      "src/electron.js",
+      "src/preload.cjs",
+      "src/ipc/**/*"
     ],
     "directories": {
       "output": "release"
-    }
+    },
+    "asar": true
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "electron-store": "^10.0.0"
   }
 }
