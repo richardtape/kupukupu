@@ -1,25 +1,27 @@
-/* Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/**
+ * KupuKupu Main Stylesheet
+ *
+ * Main entry point for all styles. The import order is important:
+ * 1. Default variables (fallbacks)
+ * 2. Base styles (layout, typography)
+ * 3. Components
+ * 4. Theme overrides
+ */
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.6;
-    padding: 20px;
-}
+/* Default Variables */
+@import './themes/_variables.css';
 
-h1 {
-    margin-bottom: 1rem;
-}
+/* Base Styles */
+@import './base/layout.css';
 
-a {
-    color: #0066cc;
-    text-decoration: none;
-}
+/* Form Components */
+@import './base/components/input.css';
+@import './base/components/checkbox.css';
+@import './base/components/select.css';
+@import './base/components/button.css';
+@import './base/components/repeater.css';
 
-a:hover {
-    text-decoration: underline;
-}
+/* Theme Overrides - these must come last */
+@import './themes/fern.css';
+@import './themes/word.css';
+@import './themes/butterfly.css';

@@ -1,10 +1,17 @@
-// Check if we're running in Electron
-const isElectron = window?.process?.type === 'renderer';
+import { settingsManager } from './settings-manager.js';
 
-// Log environment information
-console.log(`Running in ${isElectron ? 'Electron' : 'Browser'} environment`);
+/**
+ * Initialize the application
+ * This file is included on every page and handles core initialization
+ */
+async function initialize() {
+    try {
+        await settingsManager.initialize();
+        console.log('Application initialized');
+    } catch (error) {
+        console.log('Error initializing application:', error);
+    }
+}
 
-// Basic initialization
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Application initialized');
-});
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initialize);

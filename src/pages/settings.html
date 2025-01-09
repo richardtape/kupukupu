@@ -8,8 +8,89 @@
     <title>Settings - KupuKupu</title>
 </head>
 <body>
-    <h1>Settings - KupuKupu</h1>
-    <p><a href="./index.html">Home</a></p>
-    <script type="module" src="../assets/js/main.js"></script>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="nav-links">
+            <a href="./index.html" class="btn btn-secondary btn-sm">← Back to Home</a>
+        </nav>
+
+        <div class="form-section content-section">
+            <h1 class="form-section-title">Settings</h1>
+            <form id="settings-form">
+                <!-- Appearance Settings -->
+                <div class="form-section">
+                    <h2 class="form-section-title">Appearance</h2>
+
+                    <!-- Dark Mode Toggle -->
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="darkMode" class="checkbox-input">
+                        <label for="darkMode" class="checkbox-label">Dark Mode</label>
+                    </div>
+
+                    <!-- Theme Selection -->
+                    <div class="select-group">
+                        <label for="theme" class="form-label">Theme</label>
+                        <select id="theme" class="form-select">
+                            <option value="Fern">Fern</option>
+                            <option value="Word">Word</option>
+                            <option value="Butterfly">Butterfly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- API Settings -->
+                <div class="form-section">
+                    <h2 class="form-section-title">API Settings</h2>
+
+                    <!-- Ollama URL -->
+                    <div class="form-group">
+                        <label for="ollamaUrl" class="form-label">Ollama URL</label>
+                        <input type="url" id="ollamaUrl" class="form-input"
+                               placeholder="http://localhost:11434">
+                    </div>
+                </div>
+
+                <!-- RSS Feeds -->
+                <div class="form-section">
+                    <div class="repeater">
+                        <div class="repeater-header">
+                            <h2 class="form-section-title">RSS Feeds</h2>
+                            <button type="button" class="btn btn-secondary" id="add-feed">
+                                Add New Feed
+                            </button>
+                        </div>
+
+                        <div class="repeater-items" id="rss-feeds">
+                            <!-- Template for RSS feed item -->
+                            <template id="feed-template">
+                                <div class="repeater-item">
+                                    <div class="repeater-item-fields">
+                                        <div class="form-group" style="flex: 2;">
+                                            <label class="form-label">URL</label>
+                                            <input type="url" class="form-input feed-url" placeholder="https://example.com/feed">
+                                        </div>
+                                        <div class="form-group" style="flex: 1;">
+                                            <label class="form-label">Title</label>
+                                            <input type="text" class="form-input feed-title" placeholder="Feed Title">
+                                        </div>
+                                    </div>
+                                    <div class="repeater-item-actions">
+                                        <button type="button" class="btn btn-danger btn-sm delete-feed">Delete</button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="../assets/js/settings.js"></script>
 </body>
 </html>

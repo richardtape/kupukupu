@@ -1,0 +1,28 @@
+/**
+ * Form Checkbox Styles
+ *
+ * Basic styling for checkbox inputs. Uses CSS variables
+ * for themeable properties while maintaining consistent structure.
+ *
+ * @usage
+ * <div class="checkbox-group">
+ *     <input type="checkbox" id="myCheckbox" class="checkbox-input">
+ *     <label for="myCheckbox" class="checkbox-label">Checkbox Text</label>
+ * </div>
+ */
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.checkbox-label {
+    margin-left: var(--space-2);
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.checkbox-input {
+    cursor: pointer;
+}

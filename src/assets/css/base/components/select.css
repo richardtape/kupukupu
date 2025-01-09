@@ -1,0 +1,33 @@
+/**
+ * Form Select Styles
+ *
+ * Basic styling for select dropdowns. Uses CSS variables
+ * for themeable properties while maintaining consistent structure.
+ *
+ * @usage
+ * <div class="select-group">
+ *     <label class="form-label">Label Text</label>
+ *     <select class="form-select">
+ *         <option>Option 1</option>
+ *     </select>
+ * </div>
+ */
+
+.select-group {
+    margin-bottom: var(--space-4);
+}
+
+.form-select {
+    width: 100%;
+    padding: var(--space-2);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--color-border-focus);
+}

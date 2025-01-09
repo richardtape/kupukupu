@@ -7,6 +7,9 @@ console.log('Initializing preload script');
 contextBridge.exposeInMainWorld(
     'api',
     {
+        environment: {
+            isElectron: true
+        },
         store: {
             get: (key) => ipcRenderer.invoke('store:get', key),
             set: (key, value) => ipcRenderer.invoke('store:set', { key, value }),

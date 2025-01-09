@@ -1,0 +1,36 @@
+/**
+ * Form Input Styles
+ *
+ * Basic styling for text and URL input fields. Uses CSS variables
+ * for themeable properties while maintaining consistent structure.
+ *
+ * @usage
+ * <div class="form-group">
+ *     <label class="form-label">Label Text</label>
+ *     <input type="text" class="form-input">
+ * </div>
+ */
+
+.form-input {
+    width: 100%;
+    padding: var(--space-2);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    transition: border-color var(--transition-fast);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--color-border-focus);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: var(--space-2);
+    color: var(--color-text-secondary);
+}
+
+.form-group {
+    margin-bottom: var(--space-4);
+}

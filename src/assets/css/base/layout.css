@@ -1,0 +1,91 @@
+/**
+ * Base Layout Styles
+ *
+ * Core structural styles that remain consistent across all themes.
+ * Uses CSS variables for themeable properties while maintaining
+ * consistent spacing and layout rules.
+ */
+
+/* Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Document setup */
+html {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    font-family: var(--font-primary);
+}
+
+body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+}
+
+/* Container */
+.container {
+    width: 100%;
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: var(--space-4);
+}
+
+/* Section spacing */
+.section {
+    margin-bottom: var(--space-8);
+}
+
+.section-title {
+    margin-bottom: var(--space-4);
+}
+
+/* Navigation */
+.nav-links {
+    margin-bottom: var(--space-8);
+}
+
+/* Form layout */
+.form-section {
+    margin-bottom: var(--space-8);
+}
+
+.form-section-title {
+    margin-bottom: var(--space-4);
+}
+
+.form-group {
+    margin-bottom: var(--space-4);
+}
+
+/* Form actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-top: var(--space-8);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .container {
+        padding: var(--space-2);
+    }
+
+    .section {
+        margin-bottom: var(--space-6);
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions > * {
+        width: 100%;
+    }
+}

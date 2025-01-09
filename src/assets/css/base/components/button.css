@@ -1,0 +1,42 @@
+/**
+ * Form Button Styles
+ *
+ * Basic styling for buttons. Uses CSS variables
+ * for themeable properties while maintaining consistent structure.
+ *
+ * @usage
+ * <button class="btn btn-primary">Primary Button</button>
+ * <button class="btn btn-secondary">Secondary Button</button>
+ * <button class="btn btn-danger">Danger Button</button>
+ * <button class="btn btn-sm">Small Button</button>
+ */
+
+.btn {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn:focus {
+    outline: none;
+    border-color: var(--color-border-focus);
+}
+
+.btn-sm {
+    padding: var(--space-1) var(--space-2);
+    font-size: 0.875rem;
+}
+
+/* Button group - for adjacent buttons */
+.btn-group {
+    display: flex;
+    gap: var(--space-2);
+}
+
+/* Full width button */
+.btn-block {
+    width: 100%;
+}
