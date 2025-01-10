@@ -1,3 +1,5 @@
+import { isElectron } from '../../utils/index.js';
+
 /**
  * A unified storage interface for KupuKupu that works seamlessly across both Electron and browser environments.
  * In the Electron environment, it uses electron-store via IPC calls for persistent storage.
@@ -20,7 +22,7 @@ class Storage {
      * which is exposed through the contextBridge.
      */
     constructor() {
-        this.isElectron = window?.api?.environment?.isElectron === true;
+        this.isElectron = isElectron();
     }
 
     /**

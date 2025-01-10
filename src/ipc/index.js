@@ -1,10 +1,16 @@
 import { ipcMain } from 'electron';
 import { storeHandlers } from './handlers/store.js';
+import { eventHandlers } from './handlers/events.js';
 
 // Register all handlers
 export function setupIpcHandlers() {
     // Register store handlers
     Object.entries(storeHandlers).forEach(([channel, handler]) => {
+        ipcMain.handle(channel, handler);
+    });
+
+    // Register event handlers
+    Object.entries(eventHandlers).forEach(([channel, handler]) => {
         ipcMain.handle(channel, handler);
     });
 

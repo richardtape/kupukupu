@@ -29,39 +29,89 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
 -   Modular handler system for different functionalities
 -   Currently implemented handlers:
     -   Storage (`src/ipc/handlers/store.js`)
+    -   Events (`src/ipc/handlers/events.js`)
 
 ### Storage System
 
 -   Uses `electron-store` in Electron environment
--   Provides a consistent API through IPC:
+-   Uses `localStorage` in web browser environment
+-   Provides a consistent API across all environments:
+
     ```javascript
-    window.api.store.get(key);
-    window.api.store.set(key, value);
-    window.api.store.delete(key);
-    window.api.store.clear();
-    window.api.store.has(key);
+    // Get an instance of the storage interface
+    const storage = new Storage();
+
+    // Available methods
+    storage.get(key);
+    storage.set(key, value);
+    storage.delete(key);
+    storage.clear();
+    storage.has(key);
+    ```
+
+-   Comprehensive documentation available in JSDoc format
+-   Environment detection working correctly via preload script
+
+### Event System
+
+-   Located in `src/assets/js/pubsub.js`
+-   Built on top of `mitt` for efficient event handling
+-   Cross-environment support:
+    -   Browser: In-memory event handling
+    -   Electron: Cross-window event propagation via IPC
+-   Features:
+    -   Event deduplication in Electron
+    -   Automatic cleanup of processed events
+    -   Consistent async/sync behavior
+-   Example usage:
+
+    ```javascript
+    import { pubsub } from './pubsub.js';
+
+    // Subscribe to events
+    pubsub.on('settingsChanged', (data) => {
+    	console.log('Settings changed:', data);
+    });
+
+    // Publish events
+    await pubsub.emit('settingsChanged', { theme: 'dark' });
+    ```
+
+### Utility System
+
+-   Located in `src/utils/`
+-   Modular structure with individual utility files
+-   Central index for clean imports
+-   Currently implemented utilities:
+    -   Environment detection (`environment.js`)
+        -   `isElectron()`: Checks for Electron runtime
+        -   `getEnvironment()`: Returns current environment name
+-   Usage:
+
+    ```javascript
+    import { isElectron } from '../utils';
+
+    if (isElectron()) {
+    	// Electron-specific code
+    }
     ```
 
 ## Pending Tasks
 
 ### High Priority
 
-1. Create browser compatibility layer for storage
-
-    - Implement localStorage-based solution for web environment
-    - Ensure consistent API across platforms
-
-2. Add PubSub system
-    - Design and implement IPC handlers for pub/sub
+1. Add Notifications system
+    - Design and implement notifications that leverage the PubSub system
+    - Support different notification types (success, error, warning)
     - Ensure cross-environment compatibility
 
 ### Low Priority
 
 1. Documentation
 
-    - API documentation for storage system
     - Development setup guide
     - Deployment procedures
+    - Component documentation
 
 2. Development Tools
     - Add development utilities
@@ -90,11 +140,30 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
 
 ## Next Steps
 
-1. Implement browser compatibility layer for storage
-2. Design and implement PubSub system
+1. Design and implement PubSub system
+
+    - Create event bus architecture
+    - Implement environment-specific adapters
+    - Add documentation and examples
+
+2. Implement Notifications system
+
+    - Design notification component
+    - Create notification manager
+    - Add user preferences for notifications
+    - Implement cross-environment support
+
 3. Add comprehensive testing suite
 4. Enhance documentation
 
 ## Known Issues
 
--   Regardless of the environment, in the developer tools console, it always says "Running in Browser environment". i.e. it appears the isElectron check is not working in main.js
+None.
+
+## Recent Improvements
+
+-   Implemented browser storage compatibility layer using localStorage
+-   Fixed environment detection issue in main.js
+-   Added comprehensive JSDoc documentation for storage system
+-   Created unified storage interface for cross-environment compatibility
+-   Implemented basic settings page with theme support and RSS feed management. Very few settings actually do anything yet.

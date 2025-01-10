@@ -17,6 +17,10 @@ contextBridge.exposeInMainWorld(
             clear: () => ipcRenderer.invoke('store:clear'),
             has: (key) => ipcRenderer.invoke('store:has', key)
         },
+        events: {
+            // Pass through the complete event packet
+            publish: (packet) => ipcRenderer.invoke('events:publish', packet)
+        },
         send: (channel, data) => {
             // Whitelist channels
             const validChannels = ['toMain'];
@@ -25,9 +29,17 @@ contextBridge.exposeInMainWorld(
             }
         },
         receive: (channel, func) => {
-            const validChannels = ['fromMain'];
+            // Whitelist channels for event receiving
+            const validChannels = ['fromMain', 'events:receive'];
             if (validChannels.includes(channel)) {
-                ipcRenderer.on(channel, (event, ...args) => func(...args));
+                // Wrap in a try-catch as the function is provided by the renderer
+                ipcRenderer.on(channel, (event, ...args) => {
+                    try {
+                        func(...args);
+                    } catch (error) {
+                        console.error('Error in event handler:', error);
+                    }
+                });
             }
         }
     }

@@ -1,4 +1,6 @@
 import { settingsManager } from './settings-manager.js';
+import { pubsub } from './pubsub.js';
+import '../../events/settings/index.js';
 
 /**
  * Settings Page Handler
@@ -127,23 +129,24 @@ class SettingsPage {
     }
 
     /**
-     * Validates all settings in the form
-     * - Checks for valid Ollama URL
-     * - Validates each RSS feed URL
-     * - Ensures RSS feed titles are not empty
-     *
-     * @returns {boolean} True if all settings are valid, false otherwise
+     * Validates the Ollama URL
+     * @returns {boolean} True if valid, false otherwise
      */
-    validateSettings() {
-        // Validate Ollama URL
+    validateOllamaUrl() {
         try {
             new URL(this.ollamaUrlInput.value);
+            return true;
         } catch (error) {
             console.log('Invalid Ollama URL:', error);
             return false;
         }
+    }
 
-        // Validate RSS feeds
+    /**
+     * Validates all RSS feeds
+     * @returns {boolean} True if all feeds are valid, false otherwise
+     */
+    validateRssFeeds() {
         const feeds = this.collectRssFeeds();
         for (const feed of feeds) {
             try {
@@ -157,8 +160,15 @@ class SettingsPage {
                 return false;
             }
         }
-
         return true;
+    }
+
+    /**
+     * Validates all settings in the form
+     * @returns {boolean} True if all settings are valid, false otherwise
+     */
+    validateSettings() {
+        return this.validateOllamaUrl() && this.validateRssFeeds();
     }
 
     /**
@@ -188,10 +198,6 @@ class SettingsPage {
         this.form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            if (!this.validateSettings()) {
-                return;
-            }
-
             const settings = {
                 darkMode: this.darkModeToggle.checked,
                 theme: this.themeSelect.value,
@@ -199,12 +205,23 @@ class SettingsPage {
                 rssFeeds: this.collectRssFeeds()
             };
 
+            // Emit before save event
+            await pubsub.emit('beforeSaveSettings', settings);
+
+            if (!this.validateSettings()) {
+                await pubsub.emit('invalidSettings', {
+                    ollamaUrl: !this.validateOllamaUrl(),
+                    rssFeeds: !this.validateRssFeeds()
+                });
+                return;
+            }
+
             try {
                 if (await settingsManager.saveSettings(settings)) {
-                    console.log('Settings saved successfully');
+                    await pubsub.emit('savedSettings', settings);
                 }
             } catch (error) {
-                console.log('Error saving settings:', error);
+                await pubsub.emit('savedSettingsFailed', error);
             }
         });
     }
