@@ -44,6 +44,7 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "electron-store": "^10.0.0",
-    "mitt": "^3.0.1"
+    "mitt": "^3.0.1",
+    "notyf": "^3.10.0"
   }
 }

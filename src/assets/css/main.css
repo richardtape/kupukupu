@@ -21,6 +21,9 @@
 @import './base/components/button.css';
 @import './base/components/repeater.css';
 
+/* Notifications */
+@import './base/notifications.css';
+
 /* Theme Overrides - these must come last */
 @import './themes/fern.css';
 @import './themes/word.css';

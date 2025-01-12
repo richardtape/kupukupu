@@ -1,0 +1,41 @@
+/**
+ * Notification Styles
+ *
+ * Customizes Notyf notifications and adds reduced motion support
+ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .notyf__toast {
+        animation: none !important;
+        transition: opacity 100ms ease-in-out !important;
+    }
+
+    .notyf__ripple {
+        animation: none !important;
+    }
+}
+
+/* Custom icon styles */
+.notyf__icon--warning {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-warning);
+    border-radius: 50%;
+}
+
+.notyf__icon--warning::after {
+    content: "!";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    font-family: var(--font-primary);
+}
+
+/* Ensure notifications use our theme font */
+.notyf__toast {
+    font-family: var(--font-primary);
+}

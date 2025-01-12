@@ -77,6 +77,38 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     await pubsub.emit('settingsChanged', { theme: 'dark' });
     ```
 
+### Notifications System
+
+-   Located in `src/assets/js/notifications.js`
+-   Built on top of `notyf` for efficient toast notifications
+-   Cross-environment support:
+    -   Browser: Standard notifications
+    -   Electron: Cross-window notification propagation via PubSub
+-   Features:
+    -   Success, error, and warning notification types
+    -   Customizable duration and dismissible options
+    -   Reduced motion support
+    -   Theme-aware styling using CSS variables
+    -   Deduplication in Electron windows
+-   Example usage:
+
+    ```javascript
+    import { notify } from './notifications.js';
+
+    // Simple usage
+    notify.success('Settings saved successfully');
+    notify.error('Failed to save settings');
+    notify.warning('You have unsaved changes');
+
+    // Advanced usage
+    notify.show({
+    	message: 'Custom notification',
+    	type: 'warning',
+    	duration: 0, // Won't auto-dismiss
+    	dismissible: true,
+    });
+    ```
+
 ### Utility System
 
 -   Located in `src/utils/`
@@ -100,20 +132,27 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
 
 ### High Priority
 
-1. Add Notifications system
-    - Design and implement notifications that leverage the PubSub system
-    - Support different notification types (success, error, warning)
-    - Ensure cross-environment compatibility
+1. Basic App Layout
 
-### Low Priority
+    - Implement narrow left sidebar with icons
+    - Pages to include:
+        - Home (main feed view)
+        - Today (daily reading list)
+        - Settings
+        - User Profile (fixed to bottom)
+    - Select appropriate icons for each page
+    - Implement main content area
+    - Ensure responsive design
+    - Support for reduced motion and accessibility
 
-1. Documentation
-
+2. Documentation
     - Development setup guide
     - Deployment procedures
     - Component documentation
 
-2. Development Tools
+### Low Priority
+
+1. Development Tools
     - Add development utilities
     - Implement debugging helpers
 
@@ -138,32 +177,6 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
 -   Supports both macOS and Windows builds
 -   ASAR packaging enabled for production builds
 
-## Next Steps
-
-1. Design and implement PubSub system
-
-    - Create event bus architecture
-    - Implement environment-specific adapters
-    - Add documentation and examples
-
-2. Implement Notifications system
-
-    - Design notification component
-    - Create notification manager
-    - Add user preferences for notifications
-    - Implement cross-environment support
-
-3. Add comprehensive testing suite
-4. Enhance documentation
-
 ## Known Issues
 
 None.
-
-## Recent Improvements
-
--   Implemented browser storage compatibility layer using localStorage
--   Fixed environment detection issue in main.js
--   Added comprehensive JSDoc documentation for storage system
--   Created unified storage interface for cross-environment compatibility
--   Implemented basic settings page with theme support and RSS feed management. Very few settings actually do anything yet.
