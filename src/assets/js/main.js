@@ -1,4 +1,5 @@
 import { settingsManager } from './settings-manager.js';
+import './drawer.js';
 
 /**
  * Initialize the application

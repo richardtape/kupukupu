@@ -132,20 +132,46 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
 
 ### High Priority
 
-1. Basic App Layout
+1. Implement web components for appropriate sections of the app such as the menu and the drawer.
 
-    - Implement narrow left sidebar with icons
-    - Pages to include:
-        - Home (main feed view)
-        - Today (daily reading list)
-        - Settings
-        - User Profile (fixed to bottom)
-    - Select appropriate icons for each page
-    - Implement main content area
-    - Ensure responsive design
-    - Support for reduced motion and accessibility
+    - Components to implement:
+        - Main navigation (`<kupu-navigation>`)
+        - Drawer (`<kupu-drawer>`)
+    - Implementation approach:
+        - Use separate files for HTML templates and CSS
+        - Templates will be stored in `src/components/{component-name}/{component-name}.template.html`
+        - Styles will be stored in `src/components/{component-name}/{component-name}.css`
+        - Component logic in `src/components/{component-name}/{component-name}.js`
+    - Key considerations:
+        - Accessibility (WCAG AA compliance):
+            - Proper ARIA attributes across shadow boundaries
+            - Keyboard navigation
+            - Focus management
+            - Screen reader compatibility
+            - Color contrast
+        - Build process:
+            - Development: Load templates dynamically
+            - Production: Templates inlined for performance
+            - Vite plugin needed for template processing
+        - Style management:
+            - CSS custom properties for theming across shadow boundaries
+            - Plan global style interactions
+        - Testing:
+            - Additional complexity due to shadow DOM
+            - Need comprehensive test coverage
+    - Benefits:
+        - Reduced code duplication
+        - Consistent look and feel
+        - Better maintainability
+        - Standards-based approach
+        - Works in all environments (web/electron)
 
-2. Documentation
+2. Keyboard Shortcut Management
+
+    - Implement framework for keyboard shortcuts
+    - Start with basic shortcuts for home and settings
+
+3. Documentation
     - Development setup guide
     - Deployment procedures
     - Component documentation

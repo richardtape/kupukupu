@@ -12,88 +12,128 @@
     </script>
 </head>
 <body>
-    <div class="container">
-        <!-- Navigation -->
-        <nav class="nav-links">
-            <a href="./index.html" class="btn btn-secondary btn-sm">← Back to Home</a>
-        </nav>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="./index.html" class="nav-icon" aria-label="Home" title="Home">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+        </a>
+        <a href="#" class="nav-icon" aria-label="Today" title="Today">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+        </a>
+        <a href="./settings.html" class="nav-icon active" aria-label="Settings" title="Settings">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+        </a>
+        <a href="#" class="nav-icon" style="margin-top: auto;" aria-label="User Profile" title="User Profile">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+        </a>
+    </nav>
 
-        <div class="form-section content-section">
-            <h1 class="form-section-title">Settings</h1>
-            <form id="settings-form">
-                <!-- Appearance Settings -->
-                <div class="form-section">
-                    <h2 class="form-section-title">Appearance</h2>
+    <!-- Main Content -->
+    <main class="main-content" role="main">
+        <div class="container">
+            <div class="form-section content-section">
+                <h1 class="form-section-title">Settings</h1>
+                <form id="settings-form">
+                    <!-- Appearance Settings -->
+                    <div class="form-section">
+                        <h2 class="form-section-title">Appearance</h2>
 
-                    <!-- Dark Mode Toggle -->
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="darkMode" class="checkbox-input">
-                        <label for="darkMode" class="checkbox-label">Dark Mode</label>
-                    </div>
-
-                    <!-- Theme Selection -->
-                    <div class="select-group">
-                        <label for="theme" class="form-label">Theme</label>
-                        <select id="theme" class="form-select">
-                            <option value="Fern">Fern</option>
-                            <option value="Word">Word</option>
-                            <option value="Butterfly">Butterfly</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- API Settings -->
-                <div class="form-section">
-                    <h2 class="form-section-title">API Settings</h2>
-
-                    <!-- Ollama URL -->
-                    <div class="form-group">
-                        <label for="ollamaUrl" class="form-label">Ollama URL</label>
-                        <input type="url" id="ollamaUrl" class="form-input"
-                               placeholder="http://localhost:11434">
-                    </div>
-                </div>
-
-                <!-- RSS Feeds -->
-                <div class="form-section">
-                    <div class="repeater">
-                        <div class="repeater-header">
-                            <h2 class="form-section-title">RSS Feeds</h2>
-                            <button type="button" class="btn btn-secondary" id="add-feed">
-                                Add New Feed
-                            </button>
+                        <!-- Dark Mode Toggle -->
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="darkMode" class="checkbox-input">
+                            <label for="darkMode" class="checkbox-label">Dark Mode</label>
                         </div>
 
-                        <div class="repeater-items" id="rss-feeds">
-                            <!-- Template for RSS feed item -->
-                            <template id="feed-template">
-                                <div class="repeater-item">
-                                    <div class="repeater-item-fields">
-                                        <div class="form-group" style="flex: 2;">
-                                            <label class="form-label">URL</label>
-                                            <input type="url" class="form-input feed-url" placeholder="https://example.com/feed">
-                                        </div>
-                                        <div class="form-group" style="flex: 1;">
-                                            <label class="form-label">Title</label>
-                                            <input type="text" class="form-input feed-title" placeholder="Feed Title">
-                                        </div>
-                                    </div>
-                                    <div class="repeater-item-actions">
-                                        <button type="button" class="btn btn-danger btn-sm delete-feed">Delete</button>
-                                    </div>
-                                </div>
-                            </template>
+                        <!-- Theme Selection -->
+                        <div class="select-group">
+                            <label for="theme" class="form-label">Theme</label>
+                            <select id="theme" class="form-select">
+                                <option value="Fern">Fern</option>
+                                <option value="Word">Word</option>
+                                <option value="Butterfly">Butterfly</option>
+                            </select>
                         </div>
                     </div>
-                </div>
 
-                <!-- Form Actions -->
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Save Settings</button>
-                </div>
-            </form>
+                    <!-- API Settings -->
+                    <div class="form-section">
+                        <h2 class="form-section-title">API Settings</h2>
+
+                        <!-- Ollama URL -->
+                        <div class="form-group">
+                            <label for="ollamaUrl" class="form-label">Ollama URL</label>
+                            <input type="url" id="ollamaUrl" class="form-input"
+                                   placeholder="http://localhost:11434">
+                        </div>
+                    </div>
+
+                    <!-- RSS Feeds -->
+                    <div class="form-section">
+                        <div class="repeater">
+                            <div class="repeater-header">
+                                <h2 class="form-section-title">RSS Feeds</h2>
+                                <button type="button" class="btn btn-secondary" id="add-feed">
+                                    Add New Feed
+                                </button>
+                            </div>
+
+                            <div class="repeater-items" id="rss-feeds">
+                                <!-- Template for RSS feed item -->
+                                <template id="feed-template">
+                                    <div class="repeater-item">
+                                        <div class="repeater-item-fields">
+                                            <div class="form-group" style="flex: 2;">
+                                                <label class="form-label">URL</label>
+                                                <input type="url" class="form-input feed-url" placeholder="https://example.com/feed">
+                                            </div>
+                                            <div class="form-group" style="flex: 1;">
+                                                <label class="form-label">Title</label>
+                                                <input type="text" class="form-input feed-title" placeholder="Feed Title">
+                                            </div>
+                                        </div>
+                                        <div class="repeater-item-actions">
+                                            <button type="button" class="btn btn-danger btn-sm delete-feed">Delete</button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </div>
+                </form>
+            </div>
+
+            <button id="open-drawer" class="btn btn-primary" aria-label="Open drawer">
+                Open Drawer
+            </button>
         </div>
-    </div>
+    </main>
+
+    <!-- Drawer -->
+    <aside class="drawer" role="complementary" aria-label="Content drawer">
+        <button class="drawer-close" aria-label="Close drawer">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                <path d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+        <div class="drawer-content" style="padding: var(--space-4);">
+            <h2>Drawer Content</h2>
+            <p>This is some example drawer content that will be replaced later.</p>
+        </div>
+    </aside>
 
     <script type="module" src="../assets/js/main.js"></script>
     <script type="module" src="../assets/js/settings.js"></script>
