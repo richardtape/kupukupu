@@ -128,15 +128,32 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     }
     ```
 
+### Web Components
+
+-   Located in `src/components/`
+-   Each component in its own directory with consistent structure:
+    -   Component logic: `{component-name}/{component-name}.js`
+    -   HTML template: `{component-name}/{component-name}.template.html`
+    -   Component styles: `{component-name}/{component-name}.css`
+-   Currently implemented components:
+    -   Navigation (`<kupukupu-navigation>`):
+        -   Provides main application navigation sidebar
+        -   Theme-aware styling using CSS custom properties
+        -   Accessible keyboard navigation and ARIA attributes
+        -   Automatic active state management
+        -   Example usage:
+            ```html
+            <kupukupu-navigation></kupukupu-navigation>
+            ```
+
 ## Pending Tasks
 
 ### High Priority
 
-1. Implement web components for appropriate sections of the app such as the menu and the drawer.
+1. Implement web components for appropriate sections of the app such as the drawer.
 
     - Components to implement:
-        - Main navigation (`<kupu-navigation>`)
-        - Drawer (`<kupu-drawer>`)
+        - Drawer (`<kupukupu-drawer>`)
     - Implementation approach:
         - Use separate files for HTML templates and CSS
         - Templates will be stored in `src/components/{component-name}/{component-name}.template.html`

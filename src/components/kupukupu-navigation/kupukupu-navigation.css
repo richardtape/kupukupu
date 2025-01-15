@@ -1,0 +1,87 @@
+/**
+ * KupuKupu Navigation Component Styles
+ *
+ * Contains all styles specific to the navigation component.
+ * Uses CSS custom properties from the root theme for consistent styling.
+ * Includes layout positioning, interactions, and responsive behavior.
+ *
+ * This is the nav with a class of sidebar. The 'layout' for it is specified in the base/layout.css file as being
+ * in the grid area of sidebar.
+ */
+
+/* Navigation Container */
+.sidebar {
+    position: fixed;
+    width: var(--space-16);
+    height: 100vh;
+    background-color: var(--color-bg-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid var(--color-border);
+    /* Ensure content is contained within the viewport */
+    box-sizing: border-box;
+    /* Add padding to top and bottom */
+    padding: var(--space-4);
+}
+
+/* Main Navigation Icons Group */
+.nav-icons-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: center;
+}
+
+/* Navigation Icons */
+.nav-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+}
+
+/* Bottom-positioned nav icon */
+.nav-icon-bottom {
+    margin-top: auto;
+}
+
+.nav-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Keyboard focus styles */
+.nav-icon:focus {
+    outline: none;
+    border-color: var(--color-border-focus);
+    box-shadow: 0 0 0 2px var(--color-accent-subtle);
+}
+
+/* Hover styles */
+.nav-icon:hover {
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-tertiary);
+}
+
+/* Active state */
+.nav-icon.active {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-subtle);
+    color: var(--color-accent);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .nav-icon {
+        transition: none;
+    }
+}
