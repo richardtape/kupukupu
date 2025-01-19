@@ -34,11 +34,6 @@ body {
     grid-template-columns: var(--space-16) 1fr;
 }
 
-/* Sidebar */
-.sidebar {
-    grid-area: sidebar;
-}
-
 /* Main Content Area */
 .main-content {
     grid-area: main;
@@ -51,41 +46,8 @@ body {
     opacity: 0.5;
 }
 
-/* Drawer */
-.drawer {
-    position: fixed;
-    top: 0;
-    right: 0;
-    height: 100vh;
-    width: 30%;
-    background-color: var(--color-bg-primary);
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-    transform: translateX(100%);
-    transition: transform 0.25s cubic-bezier(0.820, 0.085, 0.395, 0.895);
-    z-index: 1000;
-}
-
-.drawer.open {
-    transform: translateX(0);
-}
-
-.drawer-close {
-    position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
-    padding: var(--space-2);
-    cursor: pointer;
-    border: none;
-    background: none;
-    color: var(--color-text-primary);
-}
-
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-    .drawer {
-        transition: none;
-    }
-
     .main-content {
         transition: none;
     }
@@ -93,7 +55,5 @@ body {
 
 /* Responsive Adjustments */
 @media (max-width: 640px) {
-    .drawer {
-        width: 90%;
-    }
+    /* Add any responsive layout adjustments here */
 }

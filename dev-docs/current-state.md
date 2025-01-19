@@ -136,59 +136,63 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     -   HTML template: `{component-name}/{component-name}.template.html`
     -   Component styles: `{component-name}/{component-name}.css`
 -   Currently implemented components:
+
     -   Navigation (`<kupukupu-navigation>`):
+
         -   Provides main application navigation sidebar
         -   Theme-aware styling using CSS custom properties
         -   Accessible keyboard navigation and ARIA attributes
         -   Automatic active state management
         -   Example usage:
+
             ```html
             <kupukupu-navigation></kupukupu-navigation>
+            ```
+
+    -   Drawer (`<kupukupu-drawer>`):
+
+        -   Provides sliding drawer functionality
+        -   Uses pubsub for open/close events
+        -   Theme-aware styling using CSS custom properties
+        -   Full accessibility support with ARIA attributes
+        -   Focus management and keyboard navigation
+        -   Reduced motion support
+        -   Example usage:
+
+            ```html
+            <kupukupu-drawer>
+            	<h2>Drawer Content</h2>
+            	<p>Content to show in the drawer...</p>
+            </kupukupu-drawer>
+
+            <!-- Trigger button -->
+            <button id="open-drawer">Open Drawer</button>
+            ```
+
+        -   Events:
+
+            ```javascript
+            // Events emitted by the drawer
+            drawerWillOpen; // Before opening
+            drawerDidOpen; // After opening
+            drawerWillClose; // Before closing
+            drawerDidClose; // After closing
+            drawerStateChange; // When state changes (with isOpen boolean)
+
+            // Event to open drawer
+            pubsub.emit('openDrawer');
             ```
 
 ## Pending Tasks
 
 ### High Priority
 
-1. Implement web components for appropriate sections of the app such as the drawer.
-
-    - Components to implement:
-        - Drawer (`<kupukupu-drawer>`)
-    - Implementation approach:
-        - Use separate files for HTML templates and CSS
-        - Templates will be stored in `src/components/{component-name}/{component-name}.template.html`
-        - Styles will be stored in `src/components/{component-name}/{component-name}.css`
-        - Component logic in `src/components/{component-name}/{component-name}.js`
-    - Key considerations:
-        - Accessibility (WCAG AA compliance):
-            - Proper ARIA attributes across shadow boundaries
-            - Keyboard navigation
-            - Focus management
-            - Screen reader compatibility
-            - Color contrast
-        - Build process:
-            - Development: Load templates dynamically
-            - Production: Templates inlined for performance
-            - Vite plugin needed for template processing
-        - Style management:
-            - CSS custom properties for theming across shadow boundaries
-            - Plan global style interactions
-        - Testing:
-            - Additional complexity due to shadow DOM
-            - Need comprehensive test coverage
-    - Benefits:
-        - Reduced code duplication
-        - Consistent look and feel
-        - Better maintainability
-        - Standards-based approach
-        - Works in all environments (web/electron)
-
-2. Keyboard Shortcut Management
+1. Keyboard Shortcut Management
 
     - Implement framework for keyboard shortcuts
     - Start with basic shortcuts for home and settings
 
-3. Documentation
+2. Documentation
     - Development setup guide
     - Deployment procedures
     - Component documentation
