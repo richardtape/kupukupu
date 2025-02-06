@@ -77,6 +77,46 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     await pubsub.emit('settingsChanged', { theme: 'dark' });
     ```
 
+### Shortcuts System
+
+-   Located in `src/assets/js/shortcuts.js`
+-   Built for cross-environment support:
+    -   Uses Command (⌘) key in Electron/macOS
+    -   Uses Control (Ctrl) key in web browsers
+-   Features:
+    -   Configurable shortcuts with storage persistence
+    -   Cross-window shortcut synchronization in Electron
+    -   Conflict prevention with browser/system shortcuts
+    -   User-customizable via settings UI
+    -   Help documentation in drawer
+-   Default shortcuts:
+    -   `⌘/Ctrl + H`: Navigate to Home
+    -   `⌘/Ctrl + ,`: Navigate to Settings
+    -   `⌘/Ctrl + B`: Toggle Drawer
+    -   `⌘/Ctrl + /`: Show Help
+-   Example usage:
+
+    ```javascript
+    import { shortcuts } from './shortcuts.js';
+
+    // Register a shortcut handler
+    shortcuts.register('customAction', () => {
+    	console.log('Custom shortcut triggered');
+    });
+
+    // Update a shortcut binding
+    await shortcuts.update('customAction', 'mod+k');
+
+    // Reset all shortcuts to defaults
+    await shortcuts.resetToDefaults();
+    ```
+
+-   Component styles:
+    -   Shortcut input component: `src/assets/css/base/components/shortcuts.css`
+    -   Help display: `src/assets/css/base/components/shortcuts-help.css`
+    -   Uses CSS variables for theming
+    -   Follows component pattern for modularity
+
 ### Notifications System
 
 -   Located in `src/assets/js/notifications.js`
@@ -187,21 +227,24 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
 
 ### High Priority
 
-1. Keyboard Shortcut Management
-
-    - Implement framework for keyboard shortcuts
-    - Start with basic shortcuts for home and settings
-
-2. Documentation
-    - Development setup guide
-    - Deployment procedures
-    - Component documentation
+1. Add a tooltip system.
+    - Implement as a question mark icon that when hovered (or tapped on mobile) displays a tooltip.
+    - Tooltips should be modal and not interfere with the main content.
+    - Must be accessible.
+    - Must be themeable.
 
 ### Low Priority
 
 1. Development Tools
+
     - Add development utilities
     - Implement debugging helpers
+
+2. Keyboard Shortcuts Enhancements
+    - Add shortcuts for upcoming features (Today, Profile)
+    - Add visual feedback when shortcuts are triggered
+    - Consider adding a search feature to help documentation
+    - Add support for custom shortcuts beyond predefined actions
 
 ## Build Processes
 

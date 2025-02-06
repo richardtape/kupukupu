@@ -1,0 +1,68 @@
+/**
+ * Shortcut Input Component Styles
+ *
+ * Styles for shortcut input fields and related UI elements.
+ * Uses CSS variables for themeable properties while maintaining consistent structure.
+ *
+ * @usage
+ * <div class="shortcut-item">
+ *     <label class="form-label">Label Text</label>
+ *     <input type="text" class="shortcut-input">
+ * </div>
+ */
+
+/* Shortcut Container */
+.shortcuts {
+    width: 100%;
+}
+
+.shortcuts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.shortcuts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* Shortcut Input Item */
+.shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.shortcut-item .form-label {
+    flex: 1;
+    margin: 0;
+}
+
+/* Shortcut Input Field */
+.shortcut-input {
+    flex: 1;
+    text-align: center;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    padding: var(--space-2);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-fast);
+}
+
+.shortcut-input:focus {
+    outline: none;
+    border-color: var(--color-border-focus);
+    background-color: var(--color-accent-subtle);
+}
+
+.shortcut-input.recording {
+    background-color: var(--color-accent-subtle);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}

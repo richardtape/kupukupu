@@ -20,6 +20,7 @@
 // Import styles as a module using Vite's inline loader
 import styles from './kupukupu-drawer.css?inline';
 import { pubsub } from '../../assets/js/pubsub.js';
+import { renderShortcutsHelp } from '../../assets/js/drawer-content/shortcuts-help.js';
 
 /**
  * KupuKupuDrawer class
@@ -85,7 +86,26 @@ class KupuKupuDrawer extends HTMLElement {
         this.drawer.addEventListener('transitionend', this.handleTransitionEnd.bind(this));
 
         // Listen for open requests
-        pubsub.on('openDrawer', () => this.open());
+        this.setupEventListeners();
+    }
+
+    /**
+     * Set up event listeners
+     */
+    setupEventListeners() {
+        // Listen for open drawer events
+        pubsub.on('openDrawer', async (data) => {
+            if (data?.content === 'shortcuts-help') {
+                this.setContent(renderShortcutsHelp());
+                pubsub.emit('drawerContentChanged', { content: 'shortcuts-help' });
+            }
+            this.open();
+        });
+
+        // Listen for close drawer events
+        pubsub.on('closeDrawer', () => {
+            this.close();
+        });
     }
 
     /**
@@ -141,6 +161,15 @@ class KupuKupuDrawer extends HTMLElement {
         this.drawer.setAttribute('aria-expanded', 'false');
         document.getElementById('open-drawer').focus();
         pubsub.emit('drawerStateChange', { isOpen: false });
+    }
+
+    /**
+     * Set the drawer content
+     * @param {string} content - HTML content for the drawer
+     */
+    setContent(content) {
+        const contentElement = this.shadowRoot.querySelector('.drawer-content');
+        contentElement.innerHTML = content;
     }
 }
 

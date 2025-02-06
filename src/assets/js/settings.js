@@ -1,5 +1,6 @@
 import { settingsManager } from './settings-manager.js';
 import { pubsub } from './pubsub.js';
+import { shortcuts } from './shortcuts.js';
 import '../../events/settings/index.js';
 
 /**
@@ -34,6 +35,10 @@ class SettingsPage {
         this.addFeedButton = document.getElementById('add-feed');
         this.feedTemplate = document.getElementById('feed-template');
 
+        // New shortcut elements
+        this.resetShortcutsButton = document.getElementById('reset-shortcuts');
+        this.shortcutInputs = document.querySelectorAll('.shortcut-input');
+
         this.initialize();
     }
 
@@ -42,24 +47,119 @@ class SettingsPage {
      * populating the form, and setting up event listeners
      */
     async initialize() {
-        // Load settings
-        const settings = await settingsManager.initialize();
+        // Load current settings
+        const settings = await settingsManager.loadSettings();
 
-        // Apply settings to form
+        // Apply current settings to form
         this.darkModeToggle.checked = settings.darkMode;
         this.themeSelect.value = settings.theme;
         this.ollamaUrlInput.value = settings.ollamaUrl;
 
-        // Load RSS feeds
-        this.loadRssFeeds(settings.rssFeeds);
+        // Initialize RSS feeds
+        if (settings.rssFeeds && settings.rssFeeds.length > 0) {
+            settings.rssFeeds.forEach(feed => this.addFeed(feed));
+        } else {
+            this.addFeed();
+        }
+
+        // Initialize shortcuts
+        this.initializeShortcuts();
 
         // Set up event listeners
         this.setupEventListeners();
+    }
 
-        // Add initial RSS feed if none exist
-        if (this.rssFeedsContainer.children.length === 0) {
-            this.addFeed();
-        }
+    /**
+     * Initialize shortcuts UI
+     */
+    async initializeShortcuts() {
+        const currentShortcuts = shortcuts.getAll();
+
+        this.shortcutInputs.forEach(input => {
+            const action = input.dataset.action;
+            input.value = this.formatShortcut(currentShortcuts[action]);
+
+            // Handle click to record new shortcut
+            input.addEventListener('click', () => this.startRecordingShortcut(input));
+        });
+    }
+
+    /**
+     * Format a shortcut string for display
+     */
+    formatShortcut(shortcut) {
+        if (!shortcut) return '';
+        return shortcut
+            .replace('mod', shortcuts.isElectron ? '⌘' : 'Ctrl')
+            .replace('shift', '⇧')
+            .replace('alt', '⌥')
+            .replace('+', ' + ')
+            .toUpperCase();
+    }
+
+    /**
+     * Start recording a new shortcut
+     */
+    startRecordingShortcut(input) {
+        const action = input.dataset.action;
+        const originalValue = input.value;
+        let isRecording = true;
+
+        input.value = `Press ${shortcuts.isElectron ? '⌘' : 'Ctrl'} + key...`;
+        input.classList.add('recording');
+
+        const handleKeyDown = (event) => {
+            // Prevent default browser shortcuts
+            event.preventDefault();
+            event.stopPropagation();
+        };
+
+        const handleKeyUp = async (event) => {
+            if (!isRecording) return;
+
+            // Only stop recording if at least one modifier key was pressed
+            if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+                return;
+            }
+
+            isRecording = false;
+            const shortcut = shortcuts.buildShortcutString(event);
+
+            // Don't record if it's just a modifier key
+            if (shortcut.split('+').length === 1) {
+                input.value = originalValue;
+                input.classList.remove('recording');
+                cleanup();
+                return;
+            }
+
+            // Update shortcut
+            const success = await shortcuts.update(action, shortcut);
+
+            // Update input
+            input.value = success ? this.formatShortcut(shortcut) : originalValue;
+            input.classList.remove('recording');
+
+            cleanup();
+        };
+
+        const cleanup = () => {
+            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keyup', handleKeyUp);
+            isRecording = false;
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keyup', handleKeyUp);
+
+        // Handle blur
+        input.addEventListener('blur', () => {
+            if (isRecording) {
+                input.value = originalValue;
+                input.classList.remove('recording');
+                cleanup();
+            }
+        }, { once: true });
     }
 
     /**
@@ -107,8 +207,8 @@ class SettingsPage {
     /**
      * Adds a new empty RSS feed form to the interface
      */
-    addFeed() {
-        const feedElement = this.createFeedElement();
+    addFeed(feed = { url: '', title: '' }) {
+        const feedElement = this.createFeedElement(feed);
         this.rssFeedsContainer.appendChild(feedElement);
     }
 
@@ -192,6 +292,12 @@ class SettingsPage {
         // Add feed button
         this.addFeedButton.addEventListener('click', () => {
             this.addFeed();
+        });
+
+        // New shortcuts reset button listener
+        this.resetShortcutsButton.addEventListener('click', async () => {
+            await shortcuts.resetToDefaults();
+            await this.initializeShortcuts();
         });
 
         // Form submission

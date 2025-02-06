@@ -20,6 +20,8 @@
 @import './base/components/select.css';
 @import './base/components/button.css';
 @import './base/components/repeater.css';
+@import './base/components/shortcuts.css';
+@import './base/components/shortcuts-help.css';
 
 /* Notifications */
 @import './base/notifications.css';
