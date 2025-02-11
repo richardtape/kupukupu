@@ -3,6 +3,7 @@ import './drawer-init.js';
 import { shortcuts } from './shortcuts.js';
 import { pubsub } from './pubsub.js';
 import { isElectron } from '../../utils/index.js';
+import { feedNavigation } from './feed-navigation.js';
 
 let isDrawerOpen = false;
 let isShowingHelp = false;
@@ -31,20 +32,25 @@ function getBasePath() {
 }
 
 /**
- * Initialize the application
- * This file is included on every page and handles core initialization
+ * Check if we're on a page where feed navigation should work
+ * @returns {boolean} True if feed navigation should be enabled
  */
-async function initialize() {
-    try {
-        await settingsManager.initialize();
-        console.log('Application initialized');
-    } catch (error) {
-        console.log('Error initializing application:', error);
-    }
-}
+function shouldEnableFeedNavigation() {
+    // Only enable on pages with feed items
+    if (!document.querySelector('kupukupu-feed-item')) return false;
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', initialize);
+    // Don't enable when focus is in an input field
+    const activeElement = document.activeElement;
+    if (activeElement && (
+        activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.isContentEditable
+    )) {
+        return false;
+    }
+
+    return true;
+}
 
 // Register shortcut handlers
 shortcuts.register('navigateHome', () => {
@@ -70,3 +76,44 @@ shortcuts.register('showHelp', () => {
         pubsub.emit('openDrawer', { content: 'shortcuts-help' });
     }
 });
+
+/**
+ * Initialize the application
+ * This file is included on every page and handles core initialization
+ */
+async function initialize() {
+    try {
+        await settingsManager.initialize();
+        console.log( 'in initialize' );
+        // Only initialize feed navigation on pages with feed items
+        if (document.querySelector('kupukupu-feed-item')) {
+            await feedNavigation.initialize();
+
+            console.log( 'in initialize, feedNavigation initialized' );
+
+            // Register feed navigation shortcuts
+            shortcuts.register('nextItem', () => {
+                console.log('Next item shortcut triggered');
+                if (shouldEnableFeedNavigation()) {
+                    console.log('Navigation enabled, moving to next item');
+                    feedNavigation.next();
+                }
+            }, { key: 'mod+j' });
+
+            shortcuts.register('previousItem', () => {
+                console.log('Previous item shortcut triggered');
+                if (shouldEnableFeedNavigation()) {
+                    console.log('Navigation enabled, moving to previous item');
+                    feedNavigation.previous();
+                }
+            }, { key: 'mod+k' });
+        }
+
+        console.log('Application initialized');
+    } catch (error) {
+        console.error('Error initializing application:', error);
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initialize);

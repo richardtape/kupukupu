@@ -12,6 +12,7 @@
     </script>
     <script type="module" src="../components/kupukupu-navigation/kupukupu-navigation.js"></script>
     <script type="module" src="../components/kupukupu-drawer/kupukupu-drawer.js"></script>
+    <script type="module" src="../components/kupukupu-feed-item/kupukupu-feed-item.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -21,12 +22,35 @@
         <!-- Main Content -->
         <main class="main-content" role="main">
             <div class="container">
-                <h1>Home - KupuKupu</h1>
-                <p>Welcome to KupuKupu, your personal RSS feed reader.</p>
+                <div class="feed-items" role="feed" aria-label="Feed items">
+                    <!-- Test Feed Items -->
+                    <kupukupu-feed-item
+                        id="test-1"
+                        title="Welcome to KupuKupu"
+                        content="<p>KupuKupu is your personal RSS feed reader. This is a test feed item to demonstrate the layout and functionality of the feed item component.</p><p>Use the 'j' and 'k' keys to navigate between items.</p>"
+                        source="KupuKupu Blog"
+                        published="2024-03-20T12:00:00Z"
+                        link="https://kupukupu.cc/welcome"
+                    ></kupukupu-feed-item>
 
-                <button id="open-drawer" class="btn btn-primary" aria-label="Open drawer">
-                    Open Drawer
-                </button>
+                    <kupukupu-feed-item
+                        id="test-2"
+                        title="Getting Started with RSS Feeds"
+                        content="<p>RSS feeds are a great way to keep up with your favorite websites. This article will show you how to get started with RSS feeds in KupuKupu.</p><p>The content can include <strong>formatted text</strong> and <em>styling</em>.</p>"
+                        source="KupuKupu Blog"
+                        published="2024-03-20T13:00:00Z"
+                        link="https://kupukupu.cc/getting-started"
+                    ></kupukupu-feed-item>
+
+                    <kupukupu-feed-item
+                        id="test-3"
+                        title="Keyboard Shortcuts"
+                        content="<p>KupuKupu supports keyboard shortcuts for efficient navigation:</p><ul><li>Press 'j' for next item</li><li>Press 'k' for previous item</li><li>Press 'r' to refresh feeds</li></ul>"
+                        source="KupuKupu Blog"
+                        published="2024-03-20T14:00:00Z"
+                        link="https://kupukupu.cc/shortcuts"
+                    ></kupukupu-feed-item>
+                </div>
             </div>
         </main>
     </div>

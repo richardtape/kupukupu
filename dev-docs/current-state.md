@@ -34,7 +34,7 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
 ### Storage System
 
 -   Uses `electron-store` in Electron environment
--   Uses `localStorage` in web browser environment
+-   Uses IndexedDB in web browser environment
 -   Provides a consistent API across all environments:
 
     ```javascript
@@ -49,6 +49,12 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     storage.has(key);
     ```
 
+-   Features:
+    -   Asynchronous operations with Promise-based API
+    -   Automatic database initialization and error handling
+    -   Large storage capacity in browser (compared to localStorage)
+    -   Efficient storage of complex objects and binary data
+    -   Consistent error handling across environments
 -   Comprehensive documentation available in JSDoc format
 -   Environment detection working correctly via preload script
 
@@ -94,6 +100,9 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     -   `⌘/Ctrl + ,`: Navigate to Settings
     -   `⌘/Ctrl + B`: Toggle Drawer
     -   `⌘/Ctrl + /`: Show Help
+    -   `j`: Next feed item
+    -   `k`: Previous feed item
+    -   `r`: Refresh feeds
 -   Example usage:
 
     ```javascript
@@ -223,15 +232,55 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
             pubsub.emit('openDrawer');
             ```
 
+    -   Feed Item (`<kupukupu-feed-item>`):
+        -   Displays individual feed items in a consistent format
+        -   Features:
+            -   Responsive layout for various screen sizes
+            -   Keyboard navigation support (mod+j/mod+k)
+            -   Automatic read state management
+            -   Focus management for keyboard navigation
+            -   Visual state management (opacity transitions)
+            -   Error state handling with user feedback
+            -   Smooth scrolling when items become active
+            -   Theme-aware styling using CSS custom properties
+            -   Reduced motion support
+            -   Shadow DOM encapsulation for style isolation
+        -   Attributes:
+            -   `title`: The title of the feed item
+            -   `content`: The HTML content of the feed item
+            -   `source`: The source/author of the feed item
+            -   `published`: ISO date string of publication date
+            -   `link`: URL to the original content
+            -   `active`: Boolean attribute for active state
+        -   Events:
+            ```javascript
+            // Events emitted by the feed item
+            feedItemSelected; // When item becomes active (includes id)
+            feedItemRead; // When item is marked as read (includes id)
+            ```
+        -   Example usage:
+            ```html
+            <kupukupu-feed-item
+            	id="item-1"
+            	title="Article Title"
+            	content="<p>Article content...</p>"
+            	source="Blog Name"
+            	published="2024-03-21T12:00:00Z"
+            	link="https://example.com/article"
+            	active="true"
+            >
+            </kupukupu-feed-item>
+            ```
+
 ## Pending Tasks
 
 ### High Priority
 
-1. Add a tooltip system.
-    - Implement as a question mark icon that when hovered (or tapped on mobile) displays a tooltip.
-    - Tooltips should be modal and not interfere with the main content.
-    - Must be accessible.
-    - Must be themeable.
+1. Add RSS Fetching
+2. Implement Service Worker
+    - Enable offline access to feeds and content
+    - Cache feed content and images
+    - Handle background sync for feed updates
 
 ### Low Priority
 
@@ -241,10 +290,30 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     - Implement debugging helpers
 
 2. Keyboard Shortcuts Enhancements
+
     - Add shortcuts for upcoming features (Today, Profile)
     - Add visual feedback when shortcuts are triggered
     - Consider adding a search feature to help documentation
     - Add support for custom shortcuts beyond predefined actions
+    - Add ability to open feed items in external browser
+    - Add shortcuts for marking items as read/unread/starred/unstarred
+
+3. Add a tooltip system
+
+    - Implement as a question mark icon that when hovered (or tapped on mobile) displays a tooltip
+    - Tooltips should be modal and not interfere with the main content
+    - Must be accessible
+    - Must be themeable
+
+4. Feed Management Enhancements
+    - Add customizable feed fetch frequency
+    - Implement content filtering and search functionality
+    - Add bookmarking/starring of feed items
+    - Add "Mark all as read" functionality
+    - Add expanded storage quota for desktop environment
+    - Add ability to mark posts as unread manually
+    - Implement feed URL discovery from website URLs
+    - Add feed validation before adding new feeds
 
 ## Build Processes
 

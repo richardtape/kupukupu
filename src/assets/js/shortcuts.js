@@ -33,7 +33,9 @@ class Shortcuts {
             navigateHome: 'mod+h',
             navigateSettings: 'mod+,',
             toggleDrawer: 'mod+b',
-            showHelp: 'mod+/'
+            showHelp: 'mod+/',
+            nextItem: 'mod+j',
+            previousItem: 'mod+k'
         };
 
         // Reserved shortcuts that can't be changed
@@ -59,7 +61,18 @@ class Shortcuts {
     async init() {
         // Load saved shortcuts or use defaults
         const saved = await storage.get('shortcuts');
-        this.activeShortcuts = new Map(Object.entries(saved || this.defaults));
+        if (saved) {
+            // Merge saved shortcuts with defaults to ensure new shortcuts are included
+            const merged = { ...this.defaults, ...saved };
+            // Check if we added any new shortcuts
+            if (Object.keys(merged).length !== Object.keys(saved).length) {
+                // Save the merged shortcuts
+                await storage.set('shortcuts', merged);
+            }
+            this.activeShortcuts = new Map(Object.entries(merged));
+        } else {
+            this.activeShortcuts = new Map(Object.entries(this.defaults));
+        }
 
         // Set up event listeners
         document.addEventListener('keydown', this.handleKeydown.bind(this));
