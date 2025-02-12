@@ -137,7 +137,7 @@ class PubSub {
         if (this.isElectron) {
             this.emitter.emit(event, data);
             this._processedEvents.add(eventId);
-            await window.api.events.publish(eventPacket);
+            await window.api.events.emit(eventPacket);
         } else {
             this.emitter.emit(event, data);
         }

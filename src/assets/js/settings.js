@@ -163,37 +163,48 @@ class SettingsPage {
     }
 
     /**
-     * Loads RSS feeds into the repeater interface
-     * @param {Array<Object>} feeds - Array of feed objects with url and title
-     */
-    loadRssFeeds(feeds) {
-        // Clear existing feeds
-        this.rssFeedsContainer.innerHTML = '';
-
-        // Add each feed
-        feeds.forEach(feed => {
-            const feedElement = this.createFeedElement(feed);
-            this.rssFeedsContainer.appendChild(feedElement);
-        });
-    }
-
-    /**
      * Creates a new RSS feed form element
      * @param {Object} feed - Feed object with optional url and title
-     * @param {string} [feed.url=''] - The feed URL
-     * @param {string} [feed.title=''] - The feed title
      * @returns {HTMLElement} The created feed element
      */
     createFeedElement(feed = { url: '', title: '' }) {
         const template = this.feedTemplate.content.cloneNode(true);
         const feedElement = template.querySelector('.repeater-item');
+        const urlInput = feedElement.querySelector('.feed-url');
+        const titleInput = feedElement.querySelector('.feed-title');
+        const deleteButton = feedElement.querySelector('.delete-feed');
+        const validationMessage = document.createElement('div');
+
+        // Add validation message element
+        validationMessage.className = 'validation-message';
+        feedElement.querySelector('.repeater-item-fields').appendChild(validationMessage);
 
         // Set values if they exist
-        feedElement.querySelector('.feed-url').value = feed.url;
-        feedElement.querySelector('.feed-title').value = feed.title;
+        urlInput.value = feed.url;
+        titleInput.value = feed.title;
+
+        // Add URL validation
+        urlInput.addEventListener('change', async () => {
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            validationMessage.textContent = 'Validating...';
+            validationMessage.className = 'validation-message validation-message--pending';
+
+            const result = await settingsManager.validateFeedUrl(url);
+
+            if (result.isValid) {
+                validationMessage.textContent = 'Valid feed URL';
+                validationMessage.className = 'validation-message validation-message--success';
+                urlInput.value = result.feedUrl;
+            } else {
+                validationMessage.textContent = result.error || 'Invalid feed URL';
+                validationMessage.className = 'validation-message validation-message--error';
+            }
+        });
 
         // Add delete handler
-        feedElement.querySelector('.delete-feed').addEventListener('click', () => {
+        deleteButton.addEventListener('click', () => {
             if (this.rssFeedsContainer.children.length > 1) {
                 feedElement.remove();
             } else {
@@ -205,7 +216,7 @@ class SettingsPage {
     }
 
     /**
-     * Adds a new empty RSS feed form to the interface
+     * Adds a new RSS feed form to the interface
      */
     addFeed(feed = { url: '', title: '' }) {
         const feedElement = this.createFeedElement(feed);
@@ -219,11 +230,16 @@ class SettingsPage {
     collectRssFeeds() {
         const feeds = [];
         this.rssFeedsContainer.querySelectorAll('.repeater-item').forEach((item, index) => {
+            const url = item.querySelector('.feed-url').value.trim();
+            const title = item.querySelector('.feed-title').value.trim();
+
+            if (url) {
             feeds.push({
-                url: item.querySelector('.feed-url').value,
-                title: item.querySelector('.feed-title').value,
+                    url,
+                    title: title || url,
                 id: `feed-${index}`
             });
+            }
         });
         return feeds;
     }
@@ -264,11 +280,23 @@ class SettingsPage {
     }
 
     /**
-     * Validates all settings in the form
-     * @returns {boolean} True if all settings are valid, false otherwise
+     * Validates the settings form
+     * @returns {boolean} True if settings are valid
      */
     validateSettings() {
-        return this.validateOllamaUrl() && this.validateRssFeeds();
+        let isValid = true;
+
+        // Validate RSS feeds
+        // const feeds = this.collectRssFeeds(); // TODO: This is an example of how to submit an event when the settings are invalid
+        // if (feeds.length === 0) {
+        //     isValid = false;
+        //     pubsub.emit('invalidSettings', {
+        //         rssFeeds: true,
+        //         message: 'At least one valid RSS feed is required'
+        //     });
+        // }
+
+        return isValid;
     }
 
     /**
@@ -315,10 +343,6 @@ class SettingsPage {
             await pubsub.emit('beforeSaveSettings', settings);
 
             if (!this.validateSettings()) {
-                await pubsub.emit('invalidSettings', {
-                    ollamaUrl: !this.validateOllamaUrl(),
-                    rssFeeds: !this.validateRssFeeds()
-                });
                 return;
             }
 

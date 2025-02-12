@@ -5,23 +5,55 @@ export class FeedNavigation {
     constructor() {
         this.feedItems = [];
         this.currentIndex = -1;
-        this.initialize();
+        this.initialized = false;
     }
 
-    initialize() {
-        this.feedItems = Array.from(document.querySelectorAll('kupukupu-feed-item'));
+    async initialize() {
+        if (this.initialized) return;
+
+        this.updateFeedItems();
+        this.setupEventListeners();
 
         // Set initial active state
         if (this.feedItems.length > 0) {
             this.setActiveItem(0);
         }
 
+        this.initialized = true;
+    }
+
+    setupEventListeners() {
+        // Listen for feed item selection
         pubsub.on('feedItemSelected', ({ id }) => {
             const index = this.feedItems.findIndex(item => item.id === id);
             if (index !== -1) {
                 this.setActiveItem(index);
             }
         });
+
+        // Listen for new feed items
+        pubsub.on('newFeedItems', () => {
+            this.updateFeedItems();
+        });
+
+        // Watch for DOM changes in feed items container
+        if (typeof window !== 'undefined') {
+            const observer = new MutationObserver(() => {
+                this.updateFeedItems();
+            });
+
+            const container = document.querySelector('.feed-items');
+            if (container) {
+                observer.observe(container, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        }
+    }
+
+    updateFeedItems() {
+        this.feedItems = Array.from(document.querySelectorAll('kupukupu-feed-item'));
     }
 
     setActiveItem(index) {

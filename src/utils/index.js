@@ -12,4 +12,5 @@
  * import { isElectron } from '../utils/environment';
  */
 
-export { isElectron, getEnvironment } from './environment.js';
+export { isElectron } from './environment.js';
+export { createHash } from './hash.js';

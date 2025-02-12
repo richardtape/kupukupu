@@ -4,9 +4,13 @@ import { shortcuts } from './shortcuts.js';
 import { pubsub } from './pubsub.js';
 import { isElectron } from '../../utils/index.js';
 import { feedNavigation } from './feed-navigation.js';
+import { feedManager } from './feed-manager.js';
 
 let isDrawerOpen = false;
 let isShowingHelp = false;
+
+// Loading indicator singleton
+let loadingIndicator;
 
 // Listen for drawer state changes
 pubsub.on('drawerStateChange', ({ isOpen }) => {
@@ -20,6 +24,40 @@ pubsub.on('drawerStateChange', ({ isOpen }) => {
 pubsub.on('drawerContentChanged', ({ content }) => {
     isShowingHelp = content === 'shortcuts-help';
 });
+
+/**
+ * Initialize the loading indicator
+ */
+async function initializeLoadingIndicator() {
+    if (!loadingIndicator) {
+        loadingIndicator = document.querySelector('kupukupu-loading');
+        // Wait for the component to be ready
+        if (loadingIndicator) {
+            await loadingIndicator.ready();
+        }
+    }
+    return loadingIndicator;
+}
+
+/**
+ * Show the loading indicator
+ */
+async function showLoading() {
+    const indicator = await initializeLoadingIndicator();
+    if (indicator) {
+        await indicator.show();
+    }
+}
+
+/**
+ * Hide the loading indicator
+ */
+async function hideLoading() {
+    const indicator = await initializeLoadingIndicator();
+    if (indicator) {
+        await indicator.hide();
+    }
+}
 
 /**
  * Get the correct base path for navigation based on environment
@@ -83,37 +121,50 @@ shortcuts.register('showHelp', () => {
  */
 async function initialize() {
     try {
+        // Initialize settings first
         await settingsManager.initialize();
-        console.log( 'in initialize' );
-        // Only initialize feed navigation on pages with feed items
-        if (document.querySelector('kupukupu-feed-item')) {
-            await feedNavigation.initialize();
 
-            console.log( 'in initialize, feedNavigation initialized' );
+        // Only initialize feed-related functionality on pages with feed items
+        if (document.querySelector('.feed-items')) {
+            // Initialize loading indicator first
+            await initializeLoadingIndicator();
+
+            // Show loading indicator
+            await showLoading();
+
+            // Initialize feed manager
+            await feedManager.initialize();
+
+            // Initialize feed navigation
+            await feedNavigation.initialize();
 
             // Register feed navigation shortcuts
             shortcuts.register('nextItem', () => {
-                console.log('Next item shortcut triggered');
                 if (shouldEnableFeedNavigation()) {
-                    console.log('Navigation enabled, moving to next item');
                     feedNavigation.next();
                 }
-            }, { key: 'mod+j' });
+            }, { key: 'j' });
 
             shortcuts.register('previousItem', () => {
-                console.log('Previous item shortcut triggered');
                 if (shouldEnableFeedNavigation()) {
-                    console.log('Navigation enabled, moving to previous item');
                     feedNavigation.previous();
                 }
-            }, { key: 'mod+k' });
+            }, { key: 'k' });
+
+            // Hide loading indicator when feeds are loaded
+            pubsub.on('newFeedItems', hideLoading);
         }
 
         console.log('Application initialized');
     } catch (error) {
         console.error('Error initializing application:', error);
+        await hideLoading();
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', initialize);
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+} else {
+    initialize();
+}

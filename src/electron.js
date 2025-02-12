@@ -37,10 +37,11 @@ function createWindow() {
     });
 }
 
-// Setup all IPC handlers
-setupIpcHandlers();
-
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+    // Setup all IPC handlers
+    setupIpcHandlers();
+    createWindow();
+});
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

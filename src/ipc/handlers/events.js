@@ -17,7 +17,7 @@ import { BrowserWindow } from 'electron';
  */
 export const eventHandlers = {
     /**
-     * Handles event publishing from renderer processes.
+     * Handles event emission from renderer processes.
      * Broadcasts the event to all open windows, including the sender.
      *
      * @param {Electron.IpcMainInvokeEvent} event - The IPC event object
@@ -27,7 +27,7 @@ export const eventHandlers = {
      * @param {number} packet.sourceEventId - Unique ID to prevent duplicate handling
      * @returns {boolean} Always returns true to indicate successful broadcast
      */
-    'events:publish': (event, packet) => {
+    'events:emit': (event, packet) => {
         // Get all windows
         const windows = BrowserWindow.getAllWindows();
 

@@ -1,4 +1,22 @@
 import { storage } from './storage.js';
+import { pubsub } from './pubsub.js';
+import { isElectron } from '../../utils/index.js';
+import { getServerUrl } from '../../utils/config.js';
+
+/**
+ * Fetch a URL using the appropriate method for the environment
+ */
+async function fetchUrl(url) {
+    const serverUrl = getServerUrl();
+    const response = await fetch(`${serverUrl}/api/feed/validate?url=${encodeURIComponent(url)}`);
+    const data = await response.json();
+
+    if (!data.success) {
+        throw new Error(data.error || 'Failed to validate feed');
+    }
+
+    return data;
+}
 
 /**
  * Settings Manager
@@ -7,6 +25,7 @@ import { storage } from './storage.js';
  * - Loading/saving settings
  * - Applying themes and visual modes
  * - Providing default settings
+ * - Validating RSS feed URLs
  */
 class SettingsManager {
     constructor() {
@@ -14,11 +33,7 @@ class SettingsManager {
             darkMode: true,
             theme: 'Fern',
             ollamaUrl: 'http://localhost:11434',
-            rssFeeds: [{
-                url: 'https://kupukupu.cc/feed/',
-                title: 'Kupukupu',
-                id: 'default'
-            }]
+            rssFeeds: []
         };
     }
 
@@ -70,7 +85,28 @@ class SettingsManager {
         this.applyVisualSettings(settings.darkMode, settings.theme);
         return settings;
     }
+
+    /**
+     * Validate a feed URL
+     * @param {string} url - The URL to validate
+     * @returns {Promise<Object>} Validation result with status and feed URL
+     */
+    async validateFeedUrl(url) {
+        try {
+            const result = await fetchUrl(url);
+            return {
+                isValid: result.isValid,
+                feedUrl: result.feedUrl,
+                error: result.error
+            };
+        } catch (error) {
+            return {
+                isValid: false,
+                error: error.message
+            };
+        }
+    }
 }
 
-// Export a singleton instance
+// Export singleton instance
 export const settingsManager = new SettingsManager();

@@ -1,0 +1,16 @@
+.validation-message {
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-1);
+}
+
+.validation-message--pending {
+    color: var(--color-text-secondary);
+}
+
+.validation-message--success {
+    color: var(--color-success);
+}
+
+.validation-message--error {
+    color: var(--color-error);
+}

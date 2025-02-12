@@ -9,7 +9,7 @@ import { app } from 'electron';
  *
  * Storage Locations:
  * 1. Browser Environment:
- *    - Uses localStorage in the browser
+ *    - Uses IndexedDB in the browser
  *    - Data is stored in the browser's storage area for the domain
  *
  * 2. Electron Development:

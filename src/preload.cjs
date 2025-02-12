@@ -18,8 +18,11 @@ contextBridge.exposeInMainWorld(
             has: (key) => ipcRenderer.invoke('store:has', key)
         },
         events: {
-            // Pass through the complete event packet
-            publish: (packet) => ipcRenderer.invoke('events:publish', packet)
+            emit: (channel, data) => ipcRenderer.invoke('events:emit', channel, data)
+        },
+        feeds: {
+            fetch: (url) => ipcRenderer.invoke('fetchFeed', url),
+            validate: (url) => ipcRenderer.invoke('validateFeed', url)
         },
         send: (channel, data) => {
             // Whitelist channels
