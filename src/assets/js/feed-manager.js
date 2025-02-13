@@ -343,42 +343,50 @@ export class FeedManager {
      * Process new feed items
      */
     async processFeedItems(feedId, newItems) {
-        // Get existing items
+        // Get existing items and seen hashes
         const existingItems = await storage.get(`feed_items_${feedId}`) || [];
         const seenHashes = await storage.get(`seen_hashes_${feedId}`) || [];
 
-        // Filter out items we've already seen
-        const uniqueItems = newItems.filter(item => !seenHashes.includes(item.urlHash));
+        // Create a map of existing items by hash for easy lookup
+        const existingItemsByHash = new Map(
+            existingItems.map(item => [item.urlHash, item])
+        );
 
-        // Combine items and sort by date
-        const allItems = [...existingItems, ...uniqueItems]
+        // Process new items
+        let hasNewItems = false;
+        for (const newItem of newItems) {
+            const existingItem = existingItemsByHash.get(newItem.urlHash);
+
+            // If we haven't seen this item before, or if it's newer than what we have
+            if (!existingItem || new Date(newItem.published) > new Date(existingItem.published)) {
+                existingItemsByHash.set(newItem.urlHash, newItem);
+                if (!seenHashes.includes(newItem.urlHash)) {
+                    hasNewItems = true;
+                }
+            }
+        }
+
+        // Convert map back to array and sort by date
+        const allItems = Array.from(existingItemsByHash.values())
             .sort((a, b) => new Date(b.published) - new Date(a.published));
 
-        // Keep only the most recent items
-        const itemsToKeep = allItems.slice(0, Math.max(ITEMS_PER_FEED, uniqueItems.length));
+        // Keep only the most recent ITEMS_PER_FEED items
+        const itemsToKeep = allItems.slice(0, ITEMS_PER_FEED);
 
-        // Update seen hashes
-        const newHashes = uniqueItems.map(item => item.urlHash);
-        const updatedHashes = [...seenHashes, ...newHashes];
-
-        // Clean up old hashes (older than 1 year)
-        const oneYearAgo = Date.now() - (HISTORY_RETENTION_DAYS * 24 * 60 * 60 * 1000);
-        const recentHashes = updatedHashes.filter(hash => {
-            const item = allItems.find(i => i.urlHash === hash);
-            return item && new Date(item.published).getTime() > oneYearAgo;
-        });
+        // Update seen hashes to include all items we're keeping
+        const updatedHashes = itemsToKeep.map(item => item.urlHash);
 
         // Save to storage
         await Promise.all([
             storage.set(`feed_items_${feedId}`, itemsToKeep),
-            storage.set(`seen_hashes_${feedId}`, recentHashes)
+            storage.set(`seen_hashes_${feedId}`, updatedHashes)
         ]);
 
-        // Emit event for new items
-        if (uniqueItems.length > 0) {
+        // Only emit event if we actually have new items
+        if (hasNewItems) {
             pubsub.emit('newFeedItems', {
                 feedId,
-                count: uniqueItems.length
+                count: itemsToKeep.length
             });
         }
 
@@ -392,17 +400,29 @@ export class FeedManager {
     async loadInitialItems() {
         console.log('Loading initial items...');
         const allItems = [];
+        const seenHashes = new Set();
 
         // Collect items from all feeds
         for (const [feedId] of this.feeds) {
             const items = await storage.get(`feed_items_${feedId}`) || [];
-            console.log(`Loaded ${items.length} items from feed ${feedId}`);
-            allItems.push(...items);
+            // Only add items we haven't seen before
+            for (const item of items) {
+                if (!seenHashes.has(item.urlHash)) {
+                    allItems.push(item);
+                    seenHashes.add(item.urlHash);
+                }
+            }
         }
 
         // Sort by date
         this.loadedItems = allItems.sort((a, b) => new Date(b.published) - new Date(a.published));
         console.log(`Total items loaded: ${this.loadedItems.length}`);
+
+        // Clear existing items from the DOM
+        const container = document.querySelector('.feed-items');
+        if (container) {
+            container.innerHTML = '';
+        }
 
         // Load initial batch
         await this.displayItems(0, INITIAL_LOAD_AMOUNT);
@@ -419,10 +439,20 @@ export class FeedManager {
             return;
         }
 
-        const items = this.loadedItems.slice(start, start + count);
+        const items = this.loadedItems.slice(start, Math.min(start + count, this.loadedItems.length));
         console.log(`Displaying ${items.length} items`);
 
+        const existingHashes = new Set(
+            Array.from(container.children)
+                .map(el => el.id)
+        );
+
         for (const item of items) {
+            // Skip if this item is already displayed
+            if (existingHashes.has(item.urlHash)) {
+                continue;
+            }
+
             const feedElement = document.createElement('kupukupu-feed-item');
             feedElement.id = item.urlHash;
             feedElement.setAttribute('title', item.title);
@@ -434,7 +464,7 @@ export class FeedManager {
             container.appendChild(feedElement);
         }
 
-        this.currentIndex = start + count;
+        this.currentIndex = start + items.length;
     }
 
     /**
