@@ -128,6 +128,7 @@ export class FeedManager {
 
         // Listen for feed item read events
         pubsub.on('feedItemRead', async ({ id }) => {
+            console.log('feedItemRead received', { id });
             await this.markItemAsRead(id);
         });
 
@@ -460,6 +461,9 @@ export class FeedManager {
             feedElement.setAttribute('source', item.author);
             feedElement.setAttribute('published', item.published);
             feedElement.setAttribute('link', item.link);
+            if (item.isRead) {
+                feedElement.setAttribute('isread', 'true');
+            }
 
             container.appendChild(feedElement);
         }

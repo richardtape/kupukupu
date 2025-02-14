@@ -17,6 +17,7 @@ const READ_DELAY = 500; // 0.5 seconds before marking as read
  * - published: ISO date string of when the item was published
  * - link: URL to the original content
  * - active: Boolean attribute indicating if this item is currently selected
+ * - isread: Boolean attribute indicating if the item has been read
  *
  * Events Emitted:
  * - feedItemSelected: When the item becomes active (with id)
@@ -42,7 +43,7 @@ const READ_DELAY = 500; // 0.5 seconds before marking as read
  */
 export class KupukupuFeedItem extends HTMLElement {
     static get observedAttributes() {
-        return ['title', 'content', 'source', 'published', 'link', 'active'];
+        return ['title', 'content', 'source', 'published', 'link', 'active', 'isread'];
     }
 
     constructor() {
@@ -154,6 +155,7 @@ export class KupukupuFeedItem extends HTMLElement {
      * @private
      */
     handleAttributeChange(name, oldValue, newValue) {
+        console.log('handleAttributeChange', { id: this.id, name, oldValue, newValue });
         if (name === 'active') {
             const isActive = newValue !== null;
             if (isActive) {
@@ -167,6 +169,19 @@ export class KupukupuFeedItem extends HTMLElement {
                 this.shadowRoot.host.classList.remove('active');
             }
             this.handleActiveState(isActive);
+            return;
+        }
+
+        if (name === 'isread') {
+            console.log('isread attribute changed', { id: this.id, name, oldValue, newValue });
+            const isRead = newValue !== null;
+            if (isRead) {
+                this.article.classList.add('feed-item--read');
+                this.shadowRoot.host.classList.add('feed-item--read');
+            } else {
+                this.article.classList.remove('feed-item--read');
+                this.shadowRoot.host.classList.remove('feed-item--read');
+            }
             return;
         }
 
@@ -235,6 +250,8 @@ export class KupukupuFeedItem extends HTMLElement {
         if (isActive) {
             clearTimeout(this.readTimer);
             this.readTimer = setTimeout(() => {
+                console.log('feedItemRead being emitted', { id: this.id });
+                this.setAttribute('isread', 'true');
                 pubsub.emit('feedItemRead', { id: this.id });
             }, READ_DELAY);
 

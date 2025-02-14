@@ -1,12 +1,6 @@
 :host {
     display: block;
     margin: var(--space-12) 0 !important;
-    opacity: 0.6;
-    transition: opacity var(--transition-normal);
-}
-
-:host(.active) {
-    opacity: 1;
 }
 
 .feed-item {
@@ -18,15 +12,38 @@
     cursor: pointer;
 }
 
+:host(.active) .feed-item {
+    border-color: var(--color-border-focus);
+}
+
+:host(.feed-item--read) {
+    opacity: 0.6;
+}
+
+:host(.feed-item--read.active) {
+    opacity: 1;
+}
+
 /* Focus styles */
 .feed-item:focus {
     outline: none;
+    opacity: 1;
 }
 
-.feed-item:focus-visible {
+.feed-item:focus-visible,
+:host(.active) .feed-item {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+    opacity: 1;
 }
+
+/* :host(.feed-item--read) .feed-item__title {
+    color: var(--color-text-muted, #666);
+}
+
+:host(.feed-item--read) .feed-item__title a:visited {
+    color: var(--color-text-muted, #666);
+} */
 
 /* Error state */
 .feed-item--error {
