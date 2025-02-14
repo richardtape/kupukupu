@@ -159,7 +159,10 @@ class KupuKupuDrawer extends HTMLElement {
         document.querySelector('.main-content').classList.remove('dimmed');
         this.drawer.setAttribute('aria-hidden', 'true');
         this.drawer.setAttribute('aria-expanded', 'false');
-        document.getElementById('open-drawer').focus();
+        const openButton = document.getElementById('open-drawer');
+        if (openButton) {
+            openButton.focus();
+        }
         pubsub.emit('drawerStateChange', { isOpen: false });
     }
 
