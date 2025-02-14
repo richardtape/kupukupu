@@ -1,3 +1,22 @@
+/**
+ * Feed Manager Module
+ *
+ * Manages the fetching, processing, and storage of RSS/Atom feeds in KupuKupu.
+ * This module is responsible for:
+ * - Fetching feeds from remote sources
+ * - Parsing RSS and Atom feed formats
+ * - Managing feed items storage and deduplication
+ * - Tracking read state of items
+ * - Handling background fetching and updates
+ * - Managing error states and retries
+ *
+ * The feed manager is implemented as a singleton to ensure consistent state
+ * across the application. It works in both web and desktop environments,
+ * using appropriate APIs for each platform.
+ *
+ * @module feed-manager
+ */
+
 import { storage } from './storage.js';
 import { pubsub } from './pubsub.js';
 import { settingsManager } from './settings-manager.js';
@@ -6,17 +25,25 @@ import { shortcuts } from './shortcuts.js';
 import { isElectron } from '../../utils/index.js';
 import { getServerUrl } from '../../utils/config.js';
 
-const FETCH_CONCURRENCY = 10;
-const DEFAULT_FETCH_INTERVAL = 60 * 60 * 1000; // 60 minutes
-const MAX_RETRIES = 3;
-const ITEMS_PER_FEED = 10;
-const PRELOAD_THRESHOLD = 5;
-const PRELOAD_AMOUNT = 10;
-const INITIAL_LOAD_AMOUNT = 20;
-const HISTORY_RETENTION_DAYS = 365; // 1 year
+// Configuration constants
+const FETCH_CONCURRENCY = 10;          // Maximum number of concurrent feed fetches
+const DEFAULT_FETCH_INTERVAL = 60 * 60 * 1000; // 60 minutes between feed updates
+const MAX_RETRIES = 3;                 // Maximum number of retry attempts for failed fetches
+const ITEMS_PER_FEED = 10;             // Maximum number of items to keep per feed
+const PRELOAD_THRESHOLD = 5;           // Number of items from bottom to trigger preload
+const PRELOAD_AMOUNT = 10;             // Number of items to preload
+const INITIAL_LOAD_AMOUNT = 20;        // Number of items to load on initial page load
+const HISTORY_RETENTION_DAYS = 365;    // Number of days to retain feed history
 
 /**
- * Fetch a URL using the appropriate method for the environment
+ * Fetches a feed URL using the appropriate method for the current environment.
+ * In web environment, uses the fetch API through a proxy server.
+ * In desktop environment, uses direct fetch through the main process.
+ *
+ * @async
+ * @param {string} url - The URL of the feed to fetch
+ * @returns {Promise<string>} The raw feed content as text
+ * @throws {Error} If the fetch fails or returns an error status
  */
 async function fetchUrl(url) {
     const serverUrl = getServerUrl();
@@ -31,7 +58,10 @@ async function fetchUrl(url) {
 }
 
 /**
- * Escape XML special characters
+ * Escapes special XML characters in a string to prevent parsing errors.
+ *
+ * @param {string} unsafe - The string containing potentially unsafe characters
+ * @returns {string} The escaped string safe for XML parsing
  */
 function escapeXml(unsafe) {
     if (!unsafe) return '';
@@ -48,20 +78,37 @@ function escapeXml(unsafe) {
 }
 
 /**
- * Manages RSS/Atom feed fetching, processing, and storage
+ * FeedManager class handles all feed-related operations in KupuKupu.
+ * It manages the lifecycle of feeds from fetching to display, including:
+ * - Feed initialization and configuration
+ * - Periodic background fetching
+ * - Feed processing and storage
+ * - Item deduplication and sorting
+ * - Read state management
+ * - Error handling and recovery
  */
 export class FeedManager {
     constructor() {
+        // Map of feed ID to feed object containing metadata and status
         this.feeds = new Map();
+        // Queue of feeds waiting to be fetched
         this.fetchQueue = [];
+        // Number of currently active fetch operations
         this.activeFetches = 0;
+        // Whether the feed manager has been initialized
         this.initialized = false;
+        // Array of all loaded feed items for display
         this.loadedItems = [];
+        // Current index in the loaded items array for infinite scroll
         this.currentIndex = 0;
     }
 
     /**
-     * Initialize the feed manager
+     * Initializes the feed manager, loading saved feeds and starting background fetching.
+     * This method should be called once when the application starts.
+     *
+     * @async
+     * @throws {Error} If initialization fails
      */
     async initialize() {
         if (this.initialized) return;
@@ -69,7 +116,7 @@ export class FeedManager {
         try {
             console.log('Initializing feed manager...');
 
-            // Load feeds from storage
+            // Load feeds from storage via settings
             const settings = await settingsManager.loadSettings();
             console.log('Loaded settings:', settings);
 
@@ -79,7 +126,7 @@ export class FeedManager {
                 return;
             }
 
-            // Convert feeds array to Map
+            // Convert feeds array to Map with additional metadata
             this.feeds = new Map(
                 settings.rssFeeds.map(feed => [
                     feed.id,
@@ -95,9 +142,6 @@ export class FeedManager {
 
             // Start background fetching
             this.startBackgroundFetching();
-
-            // Register refresh shortcut
-            this.registerShortcuts();
 
             // Set up event listeners
             this.setupEventListeners();
@@ -118,10 +162,13 @@ export class FeedManager {
     }
 
     /**
-     * Set up event listeners
+     * Sets up event listeners for feed-related events.
+     * Handles settings changes, read state updates, and scroll events.
+     *
+     * @private
      */
     setupEventListeners() {
-        // Listen for settings changes
+        // Listen for settings changes to update feeds
         pubsub.on('savedSettings', async (settings) => {
             await this.updateFeeds(settings.rssFeeds);
         });
@@ -132,6 +179,12 @@ export class FeedManager {
             await this.markItemAsRead(id);
         });
 
+        // Listen for refresh feeds event
+        pubsub.on('refreshFeeds', async () => {
+            console.log( 'Refreshing Feeds. refreshFeeds event received' );
+            await this.fetchAllFeeds();
+        });
+
         // Listen for scroll events to handle infinite scroll
         if (typeof window !== 'undefined') {
             window.addEventListener('scroll', this.handleScroll.bind(this));
@@ -139,17 +192,11 @@ export class FeedManager {
     }
 
     /**
-     * Register keyboard shortcuts
-     */
-    registerShortcuts() {
-        // Register refresh shortcut (r)
-        shortcuts.register('refreshFeeds', async () => {
-            await this.fetchAllFeeds();
-        }, { key: 'r' });
-    }
-
-    /**
-     * Update feeds from settings
+     * Updates the list of feeds from settings.
+     * Preserves existing feed metadata when updating.
+     *
+     * @async
+     * @param {Array<Object>} newFeeds - Array of feed objects from settings
      */
     async updateFeeds(newFeeds) {
         const feedsMap = new Map();
@@ -170,14 +217,20 @@ export class FeedManager {
     }
 
     /**
-     * Save feeds to storage
+     * Saves the current state of feeds to storage.
+     *
+     * @async
+     * @private
      */
     async saveFeeds() {
         await storage.set('feeds', Object.fromEntries(this.feeds));
     }
 
     /**
-     * Start background fetching
+     * Starts the background fetching interval.
+     * Fetches all feeds periodically based on DEFAULT_FETCH_INTERVAL.
+     *
+     * @private
      */
     startBackgroundFetching() {
         setInterval(() => {
@@ -186,7 +239,10 @@ export class FeedManager {
     }
 
     /**
-     * Fetch all feeds
+     * Initiates fetching of all active feeds.
+     * Feeds are added to a queue and processed with concurrency limits.
+     *
+     * @async
      */
     async fetchAllFeeds() {
         this.fetchQueue = Array.from(this.feeds.values())
@@ -200,7 +256,11 @@ export class FeedManager {
     }
 
     /**
-     * Process the fetch queue with concurrency limit
+     * Processes the fetch queue while respecting concurrency limits.
+     * Feeds are fetched in parallel up to FETCH_CONCURRENCY limit.
+     *
+     * @async
+     * @private
      */
     async processFetchQueue() {
         while (this.fetchQueue.length > 0 && this.activeFetches < FETCH_CONCURRENCY) {
@@ -215,11 +275,17 @@ export class FeedManager {
     }
 
     /**
-     * Fetch a single feed
+     * Fetches and processes a single feed.
+     * Handles fetch errors and implements retry logic.
+     *
+     * @async
+     * @private
+     * @param {Object} feed - The feed object to fetch
      */
     async fetchFeed(feed) {
         console.log(`Fetching feed: ${feed.url}`);
         try {
+            // Fetch and parse feed content
             const text = await fetchUrl(feed.url);
             console.log(`Received response from ${feed.url}:`, text.substring(0, 200) + '...');
 
@@ -232,12 +298,13 @@ export class FeedManager {
                 throw new Error(`XML parsing error: ${parseError.textContent}`);
             }
 
+            // Parse and process feed items
             const items = this.parseFeedItems(doc, feed);
             console.log(`Parsed ${items.length} items from ${feed.url}`);
 
             await this.processFeedItems(feed.id, items);
 
-            // Update feed status
+            // Update feed status on success
             this.feeds.set(feed.id, {
                 ...feed,
                 lastFetchTime: Date.now(),
@@ -247,6 +314,7 @@ export class FeedManager {
         } catch (error) {
             console.error(`Error fetching feed ${feed.url}:`, error);
 
+            // Handle fetch errors with retry logic
             feed.errorCount = (feed.errorCount || 0) + 1;
             feed.lastError = error.message;
 
@@ -266,23 +334,28 @@ export class FeedManager {
 
         await this.saveFeeds();
 
-        // If this was the last active fetch and queue is empty, hide loading
+        // Hide loading indicator if this was the last fetch
         if (this.activeFetches === 1 && this.fetchQueue.length === 0) {
             pubsub.emit('newFeedItems', { count: 0 });
         }
     }
 
     /**
-     * Parse feed items from XML document
+     * Parses feed items from an XML document.
+     * Supports both RSS and Atom feed formats.
+     *
+     * @private
+     * @param {Document} doc - The parsed XML document
+     * @param {Object} feed - The feed object being processed
+     * @returns {Array<Object>} Array of parsed feed items
      */
     parseFeedItems(doc, feed) {
         const items = [];
         let entries;
 
-        // Try RSS
+        // Try RSS format first, then Atom
         entries = doc.querySelectorAll('item');
         if (entries.length === 0) {
-            // Try Atom
             entries = doc.querySelectorAll('entry');
         }
 
@@ -299,10 +372,10 @@ export class FeedManager {
                 images: []
             };
 
-            // Generate URL hash
+            // Generate unique hash for deduplication
             item.urlHash = createHash(item.link);
 
-            // Extract images
+            // Extract and track images for potential future caching
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = item.content;
             const images = Array.from(tempDiv.querySelectorAll('img')).map(img => ({
@@ -319,7 +392,12 @@ export class FeedManager {
     }
 
     /**
-     * Get text content from XML element
+     * Extracts text content from an XML element.
+     *
+     * @private
+     * @param {Element} parent - The parent element to search in
+     * @param {string} tagName - The tag name to find
+     * @returns {string} The text content or empty string if not found
      */
     getElementText(parent, tagName) {
         const element = parent.querySelector(tagName);
@@ -327,7 +405,12 @@ export class FeedManager {
     }
 
     /**
-     * Parse publication date from feed item
+     * Parses publication date from feed item.
+     * Handles multiple date formats from RSS and Atom feeds.
+     *
+     * @private
+     * @param {Element} entry - The feed entry element
+     * @returns {string} ISO date string
      */
     parseDate(entry) {
         const dateStr =
@@ -341,14 +424,19 @@ export class FeedManager {
     }
 
     /**
-     * Process new feed items
+     * Processes new feed items, handling deduplication and storage.
+     *
+     * @async
+     * @private
+     * @param {string} feedId - ID of the feed being processed
+     * @param {Array<Object>} newItems - Array of new items to process
      */
     async processFeedItems(feedId, newItems) {
         // Get existing items and seen hashes
         const existingItems = await storage.get(`feed_items_${feedId}`) || [];
         const seenHashes = await storage.get(`seen_hashes_${feedId}`) || [];
 
-        // Create a map of existing items by hash for easy lookup
+        // Create a map of existing items by hash for efficient lookup
         const existingItemsByHash = new Map(
             existingItems.map(item => [item.urlHash, item])
         );
@@ -358,7 +446,7 @@ export class FeedManager {
         for (const newItem of newItems) {
             const existingItem = existingItemsByHash.get(newItem.urlHash);
 
-            // If we haven't seen this item before, or if it's newer than what we have
+            // Update if item is new or newer than existing
             if (!existingItem || new Date(newItem.published) > new Date(existingItem.published)) {
                 existingItemsByHash.set(newItem.urlHash, newItem);
                 if (!seenHashes.includes(newItem.urlHash)) {
@@ -367,23 +455,19 @@ export class FeedManager {
             }
         }
 
-        // Convert map back to array and sort by date
+        // Sort items by date and keep only the most recent ones
         const allItems = Array.from(existingItemsByHash.values())
             .sort((a, b) => new Date(b.published) - new Date(a.published));
-
-        // Keep only the most recent ITEMS_PER_FEED items
         const itemsToKeep = allItems.slice(0, ITEMS_PER_FEED);
 
-        // Update seen hashes to include all items we're keeping
+        // Update storage
         const updatedHashes = itemsToKeep.map(item => item.urlHash);
-
-        // Save to storage
         await Promise.all([
             storage.set(`feed_items_${feedId}`, itemsToKeep),
             storage.set(`seen_hashes_${feedId}`, updatedHashes)
         ]);
 
-        // Only emit event if we actually have new items
+        // Notify if we have new items
         if (hasNewItems) {
             pubsub.emit('newFeedItems', {
                 feedId,
@@ -391,22 +475,24 @@ export class FeedManager {
             });
         }
 
-        // Reload items if we're displaying feeds
+        // Reload items in the UI
         await this.loadInitialItems();
     }
 
     /**
-     * Load initial items for display
+     * Loads initial items for display in the UI.
+     * Handles deduplication across feeds and sorts by date.
+     *
+     * @async
      */
     async loadInitialItems() {
         console.log('Loading initial items...');
         const allItems = [];
         const seenHashes = new Set();
 
-        // Collect items from all feeds
+        // Collect and deduplicate items from all feeds
         for (const [feedId] of this.feeds) {
             const items = await storage.get(`feed_items_${feedId}`) || [];
-            // Only add items we haven't seen before
             for (const item of items) {
                 if (!seenHashes.has(item.urlHash)) {
                     allItems.push(item);
@@ -419,18 +505,22 @@ export class FeedManager {
         this.loadedItems = allItems.sort((a, b) => new Date(b.published) - new Date(a.published));
         console.log(`Total items loaded: ${this.loadedItems.length}`);
 
-        // Clear existing items from the DOM
+        // Clear and reload the UI
         const container = document.querySelector('.feed-items');
         if (container) {
             container.innerHTML = '';
         }
 
-        // Load initial batch
         await this.displayItems(0, INITIAL_LOAD_AMOUNT);
     }
 
     /**
-     * Display feed items in the DOM
+     * Displays feed items in the DOM.
+     * Handles pagination and prevents duplicate displays.
+     *
+     * @async
+     * @param {number} start - Starting index to display from
+     * @param {number} count - Number of items to display
      */
     async displayItems(start, count) {
         console.log(`Displaying items from ${start} to ${start + count}`);
@@ -443,17 +533,19 @@ export class FeedManager {
         const items = this.loadedItems.slice(start, Math.min(start + count, this.loadedItems.length));
         console.log(`Displaying ${items.length} items`);
 
+        // Track existing items to prevent duplicates
         const existingHashes = new Set(
             Array.from(container.children)
                 .map(el => el.id)
         );
 
         for (const item of items) {
-            // Skip if this item is already displayed
+            // Skip if already displayed
             if (existingHashes.has(item.urlHash)) {
                 continue;
             }
 
+            // Create and configure feed item element
             const feedElement = document.createElement('kupukupu-feed-item');
             feedElement.id = item.urlHash;
             feedElement.setAttribute('title', item.title);
@@ -472,7 +564,10 @@ export class FeedManager {
     }
 
     /**
-     * Handle infinite scroll
+     * Handles scroll events for infinite scrolling.
+     * Loads more items when approaching the bottom of the page.
+     *
+     * @private
      */
     handleScroll() {
         const container = document.querySelector('.feed-items');
@@ -491,7 +586,10 @@ export class FeedManager {
     }
 
     /**
-     * Load more items for infinite scroll
+     * Loads more items for infinite scroll.
+     *
+     * @async
+     * @private
      */
     async loadMoreItems() {
         if (this.currentIndex >= this.loadedItems.length) return;
@@ -499,7 +597,11 @@ export class FeedManager {
     }
 
     /**
-     * Mark an item as read
+     * Marks a feed item as read.
+     * Updates both the UI and storage.
+     *
+     * @async
+     * @param {string} itemId - The URL hash of the item to mark as read
      */
     async markItemAsRead(itemId) {
         for (const [feedId] of this.feeds) {

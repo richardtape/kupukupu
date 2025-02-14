@@ -252,6 +252,7 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
             -   `published`: ISO date string of publication date
             -   `link`: URL to the original content
             -   `active`: Boolean attribute for active state
+            -   `isread`: Boolean attribute indicating if the item has been read
         -   Events:
             ```javascript
             // Events emitted by the feed item
@@ -268,16 +269,59 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
             	published="2024-03-21T12:00:00Z"
             	link="https://example.com/article"
             	active="true"
+            	isread="true"
             >
             </kupukupu-feed-item>
             ```
+        -   Visual States:
+            -   Unread items: Full opacity, normal text color
+            -   Read items: Reduced opacity (0.6), muted text color
+            -   Active items: Full opacity regardless of read state, focused border
+            -   Error state: Red border with centered error message
+
+### Feed Management System
+
+-   Located in `src/assets/js/feed-manager.js`
+-   Features:
+    -   Automatic feed fetching and parsing
+    -   Support for both RSS and Atom feeds
+    -   Configurable fetch intervals (default: 60 minutes)
+    -   Concurrent fetching with rate limiting
+    -   Automatic deduplication of feed items
+    -   Read state tracking and persistence
+    -   Error handling with automatic retries
+    -   Background fetching in both web and desktop environments
+-   Configuration Constants:
+    -   `FETCH_CONCURRENCY`: Maximum concurrent fetches (10)
+    -   `DEFAULT_FETCH_INTERVAL`: Time between fetches (60 minutes)
+    -   `MAX_RETRIES`: Maximum fetch retry attempts (3)
+    -   `ITEMS_PER_FEED`: Maximum items to keep per feed (10)
+-   Example usage:
+
+    ```javascript
+    // Feed manager is exported as a singleton
+    import { feedManager } from './feed-manager.js';
+
+    // Initialize feed manager
+    await feedManager.initialize();
+
+    // Manually trigger feed refresh
+    await feedManager.fetchAllFeeds();
+    ```
+
+-   Events:
+    ```javascript
+    // Events emitted by feed manager
+    newFeedItems; // When new items are available (includes feedId and count)
+    feedError; // When a feed fails to fetch (includes feedId and error)
+    feedItemRead; // When an item is marked as read (includes id)
+    ```
 
 ## Pending Tasks
 
 ### High Priority
 
-1. Add RSS Fetching
-2. Implement Service Worker
+1. Implement Service Worker
     - Enable offline access to feeds and content
     - Cache feed content and images
     - Handle background sync for feed updates

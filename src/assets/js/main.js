@@ -115,6 +115,12 @@ shortcuts.register('showHelp', () => {
     }
 });
 
+shortcuts.register('refreshFeeds', () => {
+    if (shouldEnableFeedNavigation()) {
+        pubsub.emit('refreshFeeds');
+    }
+});
+
 /**
  * Initialize the application
  * This file is included on every page and handles core initialization

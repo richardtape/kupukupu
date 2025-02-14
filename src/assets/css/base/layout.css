@@ -38,7 +38,9 @@ body {
 .main-content {
     grid-area: main;
     position: relative;
+    margin-top: var(--space-16);
     margin-left: var(--space-16);
+    margin-right: var(--space-16);
     transition: opacity 0.3s ease;
 }
 
