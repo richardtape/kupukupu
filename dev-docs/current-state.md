@@ -85,7 +85,12 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
 
 ### Shortcuts System
 
--   Located in `src/assets/js/shortcuts.js`
+-   Core implementation in `src/assets/js/shortcuts.js`
+-   Shortcuts organized in `src/shortcuts/` directory:
+    -   `index.js`: Central registration point for all shortcuts
+    -   `navigation.js`: Page navigation shortcuts
+    -   `drawer.js`: Drawer control shortcuts
+    -   `feeds.js`: Feed-related shortcuts
 -   Built for cross-environment support:
     -   Uses Command (⌘) key in Electron/macOS
     -   Uses Control (Ctrl) key in web browsers
@@ -95,26 +100,28 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     -   Conflict prevention with browser/system shortcuts
     -   User-customizable via settings UI
     -   Help documentation in drawer
+    -   Modular organization by functionality
+    -   Context-aware shortcut activation
 -   Default shortcuts:
     -   `⌘/Ctrl + H`: Navigate to Home
     -   `⌘/Ctrl + ,`: Navigate to Settings
     -   `⌘/Ctrl + B`: Toggle Drawer
     -   `⌘/Ctrl + /`: Show Help
-    -   `j`: Next feed item
-    -   `k`: Previous feed item
-    -   `r`: Refresh feeds
+    -   `⌘/Ctrl + J`: Next feed item
+    -   `⌘/Ctrl + K`: Previous feed item
+    -   `⌘/Ctrl + R`: Refresh feeds
 -   Example usage:
 
     ```javascript
-    import { shortcuts } from './shortcuts.js';
-
-    // Register a shortcut handler
-    shortcuts.register('customAction', () => {
-    	console.log('Custom shortcut triggered');
-    });
+    // Register shortcuts for a specific functionality
+    export function registerNavigationShortcuts() {
+    	shortcuts.register('navigateHome', () => {
+    		window.location.href = './index.html';
+    	});
+    }
 
     // Update a shortcut binding
-    await shortcuts.update('customAction', 'mod+k');
+    await shortcuts.update('navigateHome', 'mod+shift+h');
 
     // Reset all shortcuts to defaults
     await shortcuts.resetToDefaults();

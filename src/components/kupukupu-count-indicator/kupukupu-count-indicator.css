@@ -1,0 +1,57 @@
+/**
+ * Count Indicator Component Styles
+ *
+ * Styles for the count indicator bubble that appears on navigation items.
+ * Uses theme variables for consistent styling across the application.
+ */
+
+.count-indicator {
+    position: absolute;
+    top: 8px;
+    right: 4px;
+    min-width: 12px;
+    height: 18px;
+    padding: 0 var(--space-1);
+    background-color: var(--color-accent);
+    color: var(--color-bg-primary);
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+    transform-origin: center;
+    opacity: 0;
+    transform: scale(0);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.count-indicator.is-visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Adjust size for 2 digits */
+.count-indicator[data-digits="2"] {
+    min-width: 22px;
+}
+
+/* Adjust size for 3 digits */
+.count-indicator[data-digits="3"] {
+    min-width: 26px;
+}
+
+/* Adjust size for 3+ digits */
+.count-indicator[data-digits="3+"] {
+    min-width: 32px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .count-indicator {
+        transition: opacity var(--transition-normal);
+        transform: scale(1);
+    }
+}

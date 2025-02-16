@@ -11,12 +11,15 @@
  * - Accessible keyboard navigation
  * - Automatic active state management
  * - Standard HTML navigation using anchor tags
+ * - Unread count indicator on home icon
  *
  * @module KupuKupuNavigation
  */
 
 // Import styles as a module using Vite's inline loader
 import styles from './kupukupu-navigation.css?inline';
+import '../kupukupu-count-indicator/kupukupu-count-indicator.js';
+import { unreadManager } from '../../assets/js/unread-manager.js';
 
 /**
  * KupuKupuNavigation class
@@ -60,6 +63,9 @@ class KupuKupuNavigation extends HTMLElement {
 
         // Initialize the active state based on the current URL
         this.setInitialActiveState();
+
+        // Initialize the unread manager
+        await unreadManager.initialize();
     }
 
     /**

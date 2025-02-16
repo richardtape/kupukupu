@@ -5,6 +5,7 @@ import { pubsub } from './pubsub.js';
 import { isElectron } from '../../utils/index.js';
 import { feedNavigation } from './feed-navigation.js';
 import { feedManager } from './feed-manager.js';
+import { registerAllShortcuts } from '../../shortcuts/index.js';
 
 let isDrawerOpen = false;
 let isShowingHelp = false;
@@ -90,37 +91,6 @@ function shouldEnableFeedNavigation() {
     return true;
 }
 
-// Register shortcut handlers
-shortcuts.register('navigateHome', () => {
-    window.location.href = './index.html';
-});
-
-shortcuts.register('navigateSettings', () => {
-    window.location.href = './settings.html';
-});
-
-shortcuts.register('toggleDrawer', () => {
-    if (isDrawerOpen) {
-        pubsub.emit('closeDrawer');
-    } else {
-        pubsub.emit('openDrawer');
-    }
-});
-
-shortcuts.register('showHelp', () => {
-    if (isDrawerOpen && isShowingHelp) {
-        pubsub.emit('closeDrawer');
-    } else {
-        pubsub.emit('openDrawer', { content: 'shortcuts-help' });
-    }
-});
-
-shortcuts.register('refreshFeeds', () => {
-    if (shouldEnableFeedNavigation()) {
-        pubsub.emit('refreshFeeds');
-    }
-});
-
 /**
  * Initialize the application
  * This file is included on every page and handles core initialization
@@ -129,6 +99,9 @@ async function initialize() {
     try {
         // Initialize settings first
         await settingsManager.initialize();
+
+        // Register all keyboard shortcuts
+        registerAllShortcuts();
 
         // Only initialize feed-related functionality on pages with feed items
         if (document.querySelector('.feed-items')) {
@@ -143,19 +116,6 @@ async function initialize() {
 
             // Initialize feed navigation
             await feedNavigation.initialize();
-
-            // Register feed navigation shortcuts
-            shortcuts.register('nextItem', () => {
-                if (shouldEnableFeedNavigation()) {
-                    feedNavigation.next();
-                }
-            }, { key: 'j' });
-
-            shortcuts.register('previousItem', () => {
-                if (shouldEnableFeedNavigation()) {
-                    feedNavigation.previous();
-                }
-            }, { key: 'k' });
 
             // Hide loading indicator when feeds are loaded
             pubsub.on('newFeedItems', hideLoading);
