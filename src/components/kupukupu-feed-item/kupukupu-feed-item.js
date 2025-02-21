@@ -1,6 +1,7 @@
 import { pubsub } from '../../assets/js/pubsub.js';
 import templateUrl from './kupukupu-feed-item.template.html?url';
 import styles from './kupukupu-feed-item.css?inline';
+import '../kupukupu-star-button/kupukupu-star-button.js';
 
 const READ_DELAY = 500; // 0.5 seconds before marking as read
 
@@ -68,6 +69,9 @@ export class KupukupuFeedItem extends HTMLElement {
                 this.handleAttributeChange(name, null, value);
             });
             this.pendingAttributes.clear();
+
+            // Set up star button
+            this.setupStarButton();
         } catch (error) {
             console.error('Failed to initialize feed item:', error);
             this.shadowRoot.innerHTML = `
@@ -259,6 +263,29 @@ export class KupukupuFeedItem extends HTMLElement {
         } else {
             clearTimeout(this.readTimer);
         }
+    }
+
+    /**
+     * Sets up the star button with the item's ID and event listeners.
+     */
+    setupStarButton() {
+        const starButton = this.shadowRoot.querySelector('kupukupu-star-button');
+        if (!starButton) return;
+
+        starButton.setAttribute('itemId', this.id);
+
+        // Listen for star events
+        pubsub.on('itemStarred', ({ itemId }) => {
+            if (itemId === this.id) {
+                this.setAttribute('starred', '');
+            }
+        });
+
+        pubsub.on('itemUnstarred', ({ itemId }) => {
+            if (itemId === this.id) {
+                this.removeAttribute('starred');
+            }
+        });
     }
 }
 

@@ -55,6 +55,9 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     -   Large storage capacity in browser (compared to localStorage)
     -   Efficient storage of complex objects and binary data
     -   Consistent error handling across environments
+    -   Storage segregation:
+        -   Permanent storage for user-saved data (starred items, etc.)
+        -   Regular storage for application state and temporary data
 -   Comprehensive documentation available in JSDoc format
 -   Environment detection working correctly via preload script
 
@@ -91,6 +94,7 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     -   `navigation.js`: Page navigation shortcuts
     -   `drawer.js`: Drawer control shortcuts
     -   `feeds.js`: Feed-related shortcuts
+    -   `star.js`: Star-related shortcuts
 -   Built for cross-environment support:
     -   Uses Command (⌘) key in Electron/macOS
     -   Uses Control (Ctrl) key in web browsers
@@ -110,6 +114,7 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
     -   `⌘/Ctrl + J`: Next feed item
     -   `⌘/Ctrl + K`: Previous feed item
     -   `⌘/Ctrl + R`: Refresh feeds
+    -   `⌘/Ctrl + S`: Toggle star on active feed item
 -   Example usage:
 
     ```javascript
@@ -240,6 +245,7 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
             ```
 
     -   Feed Item (`<kupukupu-feed-item>`):
+
         -   Displays individual feed items in a consistent format
         -   Features:
             -   Responsive layout for various screen sizes
@@ -252,6 +258,7 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
             -   Theme-aware styling using CSS custom properties
             -   Reduced motion support
             -   Shadow DOM encapsulation for style isolation
+            -   Action buttons section for item interactions
         -   Attributes:
             -   `title`: The title of the feed item
             -   `content`: The HTML content of the feed item
@@ -260,6 +267,7 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
             -   `link`: URL to the original content
             -   `active`: Boolean attribute for active state
             -   `isread`: Boolean attribute indicating if the item has been read
+            -   `starred`: Boolean attribute indicating if the item is starred
         -   Events:
             ```javascript
             // Events emitted by the feed item
@@ -277,6 +285,7 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
             	link="https://example.com/article"
             	active="true"
             	isread="true"
+            	starred="true"
             >
             </kupukupu-feed-item>
             ```
@@ -285,6 +294,25 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
             -   Read items: Reduced opacity (0.6), muted text color
             -   Active items: Full opacity regardless of read state, focused border
             -   Error state: Red border with centered error message
+
+    -   Star Button (`<kupukupu-star-button>`):
+        -   Provides starring functionality for feed items
+        -   Features:
+            -   Custom SVG icons for starred/unstarred states
+            -   Smooth animations with reduced motion support
+            -   Keyboard shortcut support (mod+s)
+            -   Theme-aware styling using CSS custom properties
+            -   Persistent storage of starred items
+            -   Shadow DOM encapsulation for style isolation
+        -   Attributes:
+            -   `itemId`: The ID of the feed item this button is associated with
+            -   `starred`: Boolean attribute indicating if the item is starred
+        -   Events:
+            ```javascript
+            // Events emitted by the star button
+            itemStarred; // When an item is starred (includes itemId)
+            itemUnstarred; // When an item is unstarred (includes itemId)
+            ```
 
 ### Feed Management System
 
@@ -328,7 +356,18 @@ KupuKupu is being developed as both a web application and an Electron desktop ap
 
 ### High Priority
 
-1. Implement Service Worker
+1. Implement text selection system.
+
+    - Selecting some text in a feed item should show a tooltip with icons to add comments, summarize, ask questions etc.
+    - When user clicks on an icon, the drawer should open with appropriate controls.
+    - Initial icons to show, with appropriate functionality:
+        - Comment: Allows the user to add a comment to the feed item, with the selected text being highligted (this must persist when the drawer is closed and across page views and sessions)
+        - Summarize: Summarize the selected text. This will be sent to an LLM, and the response will be displayed in the drawer. (LLM Functionality not yet implemented, so this will be disabled for now)
+        - Questions: Ask a question about the item. This will be sent to an LLM, and the response will be displayed in the drawer. (LLM Functionality not yet implemented, so this will be disabled for now)
+    - Should be accessible and themeable.
+    - Should use the JavaScript Selection API to get the selected text. See: https://developer.mozilla.org/en-US/docs/Web/API/Selection
+
+2. Implement Service Worker
     - Enable offline access to feeds and content
     - Cache feed content and images
     - Handle background sync for feed updates

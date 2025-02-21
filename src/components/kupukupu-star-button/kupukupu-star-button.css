@@ -1,0 +1,59 @@
+:host {
+    display: inline-block;
+}
+
+.star-button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s ease;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.star-button:hover {
+    color: var(--color-accent);
+}
+
+.star-button:active,
+.star-button.animating {
+    transform: scale(1.2) rotate(72deg);
+}
+
+.star-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s ease;
+}
+
+.star-icon--outline {
+    opacity: 1;
+}
+
+.star-icon--filled {
+    opacity: 0;
+}
+
+:host([starred]) .star-icon--outline {
+    opacity: 0;
+}
+
+:host([starred]) .star-icon--filled {
+    opacity: 1;
+    color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .star-button,
+    .star-icon {
+        transition: none;
+    }
+}

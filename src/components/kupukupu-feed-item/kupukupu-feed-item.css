@@ -50,7 +50,8 @@
 }
 
 .feed-item__header {
-    margin-bottom: var(--space-4);
+    position: relative;
+    margin-bottom: 1rem;
 }
 
 .feed-item__title {
@@ -60,9 +61,19 @@
 }
 
 .feed-item__meta {
-    color: var(--color-text-tertiary);
-    font-size: calc(var(--font-size-base) * 0.875);
-    margin-top: var(--space-2);
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.feed-item__actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 0.5rem;
 }
 
 .feed-item__content {

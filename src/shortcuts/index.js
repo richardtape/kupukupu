@@ -16,6 +16,7 @@
 import { registerNavigationShortcuts } from './navigation.js';
 import { registerDrawerShortcuts } from './drawer.js';
 import { registerFeedShortcuts } from './feeds.js';
+import { registerStarShortcuts } from './star.js';
 
 /**
  * Registers all keyboard shortcuts for the application.
@@ -38,4 +39,5 @@ export function registerAllShortcuts() {
     registerNavigationShortcuts();
     registerDrawerShortcuts();
     registerFeedShortcuts();
+    registerStarShortcuts();
 }

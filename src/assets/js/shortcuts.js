@@ -36,7 +36,8 @@ class Shortcuts {
             showHelp: 'mod+/',
             nextItem: 'mod+j',
             previousItem: 'mod+k',
-            refreshFeeds: 'mod+r'
+            refreshFeeds: 'mod+r',
+            toggleStar: 'mod+s'
         };
 
         // Reserved shortcuts that can't be changed

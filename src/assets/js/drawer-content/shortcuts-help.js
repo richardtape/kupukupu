@@ -22,7 +22,11 @@ export function renderShortcutsHelp() {
             navigateHome: 'Navigate to Home',
             navigateSettings: 'Navigate to Settings',
             toggleDrawer: 'Toggle Drawer',
-            showHelp: 'Show Help'
+            showHelp: 'Show Help',
+            nextItem: 'Next Feed Item',
+            previousItem: 'Previous Feed Item',
+            refreshFeeds: 'Refresh Feeds',
+            toggleStar: 'Toggle Star'
         }[action];
 
         const formattedShortcut = shortcut
@@ -48,7 +52,7 @@ export function renderShortcutsHelp() {
                 ${formattedShortcuts}
             </div>
             <p class="shortcuts-help-note">
-                You can customize these shortcuts in the <a href="./settings.html">Settings</a> page.
+                You can customize these shortcuts in the <a href="${getBasePath()}settings.html">Settings</a> page.
             </p>
         </div>
     `;
