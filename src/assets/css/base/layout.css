@@ -38,20 +38,31 @@ body {
 .main-content {
     grid-area: main;
     position: relative;
-    margin-top: var(--space-16);
-    margin-left: var(--space-16);
-    margin-right: var(--space-16);
+    padding: var(--space-16);
     transition: opacity 0.3s ease;
+    height: 100vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
 }
 
 .main-content.dimmed {
     opacity: 0.5;
 }
 
+/* Container and Feed Items */
+.container {
+    min-height: 100%;
+}
+
+.feed-items {
+    min-height: 100%;
+}
+
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
     .main-content {
         transition: none;
+        scroll-behavior: auto;
     }
 }
 

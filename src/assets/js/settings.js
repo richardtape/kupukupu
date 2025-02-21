@@ -1,6 +1,7 @@
 import { settingsManager } from './settings-manager.js';
 import { pubsub } from './pubsub.js';
 import { shortcuts } from './shortcuts.js';
+import { createHash } from '../../utils/hash.js';
 import '../../events/settings/index.js';
 
 /**
@@ -39,6 +40,9 @@ class SettingsPage {
         this.resetShortcutsButton = document.getElementById('reset-shortcuts');
         this.shortcutInputs = document.querySelectorAll('.shortcut-input');
 
+        // Store existing feed IDs
+        this.existingFeeds = new Map();
+
         this.initialize();
     }
 
@@ -49,6 +53,13 @@ class SettingsPage {
     async initialize() {
         // Load current settings
         const settings = await settingsManager.loadSettings();
+
+        // Store existing feed IDs
+        if (settings.rssFeeds) {
+            settings.rssFeeds.forEach(feed => {
+                this.existingFeeds.set(feed.url, feed.id);
+            });
+        }
 
         // Apply current settings to form
         this.darkModeToggle.checked = settings.darkMode;
@@ -229,16 +240,18 @@ class SettingsPage {
      */
     collectRssFeeds() {
         const feeds = [];
-        this.rssFeedsContainer.querySelectorAll('.repeater-item').forEach((item, index) => {
+        this.rssFeedsContainer.querySelectorAll('.repeater-item').forEach(item => {
             const url = item.querySelector('.feed-url').value.trim();
             const title = item.querySelector('.feed-title').value.trim();
 
             if (url) {
-            feeds.push({
+                // Use existing ID if available, otherwise generate new one
+                const id = this.existingFeeds.get(url) || `feed-${createHash(url)}`;
+                feeds.push({
                     url,
                     title: title || url,
-                id: `feed-${index}`
-            });
+                    id
+                });
             }
         });
         return feeds;

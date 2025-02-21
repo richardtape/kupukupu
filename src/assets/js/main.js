@@ -103,16 +103,16 @@ async function initialize() {
         // Register all keyboard shortcuts
         registerAllShortcuts();
 
-        // Only initialize feed-related functionality on pages with feed items
+        // Initialize feed manager (needed for all pages)
+        await feedManager.initialize();
+
+        // Only initialize feed-specific UI functionality on pages with feed items
         if (document.querySelector('.feed-items')) {
             // Initialize loading indicator first
             await initializeLoadingIndicator();
 
             // Show loading indicator
             await showLoading();
-
-            // Initialize feed manager
-            await feedManager.initialize();
 
             // Initialize feed navigation
             await feedNavigation.initialize();

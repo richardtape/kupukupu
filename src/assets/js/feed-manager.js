@@ -194,21 +194,65 @@ export class FeedManager {
     /**
      * Updates the list of feeds from settings.
      * Preserves existing feed metadata when updating.
+     * Cleans up stored items for removed feeds.
      *
      * @async
      * @param {Array<Object>} newFeeds - Array of feed objects from settings
      */
     async updateFeeds(newFeeds) {
+        console.warn('UPDATING FEEDS');
+        console.warn('newFeeds', newFeeds);
         const feedsMap = new Map();
 
+        // Create maps for old and new feed data
+        const oldFeedsByUrl = new Map();
+        const oldFeedIds = new Set();
+
+        // Map old feeds by URL and collect old IDs
+        for (const [id, feed] of this.feeds.entries()) {
+            oldFeedsByUrl.set(feed.url, { id, feed });
+            oldFeedIds.add(id);
+        }
+
+        // Track which new IDs we'll be using
+        const newFeedIds = new Set();
+
+        // Process each new feed
         for (const feed of newFeeds) {
-            const existingFeed = this.feeds.get(feed.id);
-            feedsMap.set(feed.id, {
+            const oldFeed = oldFeedsByUrl.get(feed.url);
+            const newId = feed.id;
+            newFeedIds.add(newId);
+
+            // If this feed existed before but with a different ID, migrate its data
+            if (oldFeed && oldFeed.id !== newId) {
+                console.log(`Migrating feed data from ${oldFeed.id} to ${newId}`);
+                const items = await storage.get(`feed_items_${oldFeed.id}`) || [];
+                const hashes = await storage.get(`seen_hashes_${oldFeed.id}`) || [];
+
+                // Store items under new ID
+                await storage.set(`feed_items_${newId}`, items);
+                await storage.set(`seen_hashes_${newId}`, hashes);
+
+                // Delete old data
+                await storage.delete(`feed_items_${oldFeed.id}`);
+                await storage.delete(`seen_hashes_${oldFeed.id}`);
+            }
+
+            // Update feeds map with new/existing feed data
+            feedsMap.set(newId, {
                 ...feed,
-                lastFetchTime: existingFeed?.lastFetchTime || 0,
-                errorCount: existingFeed?.errorCount || 0,
-                status: existingFeed?.status || 'active'
+                lastFetchTime: oldFeed?.feed?.lastFetchTime || 0,
+                errorCount: oldFeed?.feed?.errorCount || 0,
+                status: oldFeed?.feed?.status || 'active'
             });
+        }
+
+        // Find and clean up feeds that were removed
+        const removedFeedIds = Array.from(oldFeedIds).filter(id => !newFeedIds.has(id));
+        for (const feedId of removedFeedIds) {
+            console.log(`Cleaning up stored items for removed feed: ${feedId}`);
+            await storage.delete(`feed_items_${feedId}`);
+            await storage.delete(`seen_hashes_${feedId}`);
         }
 
         this.feeds = feedsMap;
@@ -505,13 +549,12 @@ export class FeedManager {
         this.loadedItems = allItems.sort((a, b) => new Date(b.published) - new Date(a.published));
         console.log(`Total items loaded: ${this.loadedItems.length}`);
 
-        // Clear and reload the UI
+        // Only try to display items if we're on a page that shows feeds
         const container = document.querySelector('.feed-items');
         if (container) {
             container.innerHTML = '';
+            await this.displayItems(0, INITIAL_LOAD_AMOUNT);
         }
-
-        await this.displayItems(0, INITIAL_LOAD_AMOUNT);
     }
 
     /**
